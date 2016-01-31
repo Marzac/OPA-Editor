@@ -1,0 +1,21 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>res/program-a.png</file>
+        <file>res/program-b.png</file>
+        <file>res/program-c.png</file>
+        <file>res/program-d.png</file>
+        <file>res/program-e.png</file>
+        <file>res/program-f.png</file>
+        <file>res/program-g.png</file>
+        <file>res/program-h.png</file>
+        <file>res/program-i.png</file>
+        <file>res/program-j.png</file>
+        <file>res/program-k.png</file>
+        <file>res/program-l.png</file>
+        <file>res/voltrack-a.png</file>
+        <file>res/voltrack-b.png</file>
+        <file>res/voltrack-c.png</file>
+        <file>res/voltrack-d.png</file>
+        <file>res/program-m.png</file>
+    </qresource>
+</RCC>
