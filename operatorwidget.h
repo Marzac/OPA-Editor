@@ -57,7 +57,10 @@ public:
 
 private:
     void writeFlags();
-    void updateFlags(int flags);
+    void setFlags(int flags);
+    int getFlags();
+
+    void updateEnvelope();
     int getParamIndex(int p);
 
 private slots:
@@ -86,6 +89,8 @@ private slots:
 
     void on_coarseLine_editingFinished();
     void on_fineLine_editingFinished();
+    void on_volumeLine_editingFinished();
+
 
 private:
     int operatorIndex;

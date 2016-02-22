@@ -58,11 +58,11 @@ const OpaGlobals Opa::defaultGlobals = {
     0xFF,               // volume
     0x00,               // coarse
     0x00,               // fine
+    0x03,               // flags
     0x00,               // reserved1
     0x00,               // reserved2
     0x00,               // reserved3
     0x00,               // reserved4
-    0x00,               // reserved5
 };
 
 const OpaProgramParams Opa::defaultProgram = {
@@ -157,6 +157,7 @@ void Opa::update()
         parseProgram();
         rxLen = 0;
     }
+
 
 // Expected nothing
     if (!paramReturn && !programReturn)
@@ -340,12 +341,12 @@ void Opa::programStore(int program, int slot)
     fprintf(stdout, "Program store %i: slot %i\n", program, slot);
     fflush(stdout);
 // Prepare the message
-    char buffer[4];
+    char buffer[3];
     buffer[0] = OPA_PROGRAMSTORE;
     buffer[1] = program;
     buffer[2] = slot;
 // Send the message
-    comWrite(port, buffer, 4);
+    comWrite(port, buffer, 3);
 }
 
 void Opa::programLoad(int program, int slot)
@@ -355,12 +356,12 @@ void Opa::programLoad(int program, int slot)
     fprintf(stdout, "Program load %i: slot %i\n", program, slot);
     fflush(stdout);
 // Prepare the message
-    char buffer[4];
+    char buffer[3];
     buffer[0] = OPA_PROGRAMLOAD;
     buffer[1] = program;
     buffer[2] = slot;
 // Send the message
-    comWrite(port, buffer, 4);
+    comWrite(port, buffer, 3);
 }
 
 /*****************************************************************************/

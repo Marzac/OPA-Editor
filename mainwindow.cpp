@@ -73,10 +73,13 @@ MainWindow::MainWindow(QWidget *parent) :
     for (int i = 0; i < 16; i++)
         midiChannelsAct[i] = false;
 
+    waitforGlobals = false;
     waitforProgram = false;
     waitforParam = false;
+    needRefresh = true;
 
     setProgram(0);
+
     on_masterTuneDial_valueChanged(0);
     on_masterVolumeDial_valueChanged(0);
 
@@ -188,6 +191,8 @@ void MainWindow::on_connectionMenu_triggered(QAction * action)
             opa.connect(getMenuIndex(action));
             waitforProgram = false;
             waitforParam = false;
+            waitforGlobals = false;
+            needRefresh = true;
 
         // Mark the menu
             for (int j = 0; j < actionsNb; j++)
@@ -196,9 +201,6 @@ void MainWindow::on_connectionMenu_triggered(QAction * action)
             if (opa.isConnected()) {
                 statusLabel->setText("Arduino is connected");
                 action->setChecked(true);
-            // Refresh the interface
-                //programRead(programIndex);
-                //refresh();
             }else statusLabel->setText("Arduino is not connected");
 
         break;
@@ -226,6 +228,8 @@ void MainWindow::on_deviceMenu_triggered(QAction * action)
         opa.allNotesOff(programIndex);
     }else if (action == ui->allSoundsOffAction) {
         opa.allSoundsOff();
+    }else if (action == ui->memoryProtectionAction) {
+        writeFlags();
     }
 }
 
@@ -240,7 +244,7 @@ void MainWindow::on_helpMenu_triggered(QAction * action)
             "Project design: Thomas Hopper\n\n"
             "(c) Frederic Meslin / Thomas Hopper 2015-2016\n"
             "http://fredslab.net\n\n"
-            "Version 0.6 31/01/2016\n\n"
+            "Version 0.7 18/02/2016\n\n"
             "Software distributed under open-source MIT license, please refer to licence.txt for more details\n"
         );
         msgBox.setStandardButtons(QMessageBox::Ok);
@@ -256,6 +260,13 @@ void MainWindow::on_comTimer_timeout()
 
 void MainWindow::on_UITimer_timeout()
 {
+    if (waitforGlobals && !opa.isWaitingProgram()) {
+        setFlags(globalsBuffer.flags);
+        ui->masterVolumeDial->setValue(globalsBuffer.volume);
+        ui->masterTuneDial->setValue(globalsBuffer.coarse);
+        waitforGlobals = false;
+    }
+
     if (waitforProgram && !opa.isWaitingProgram()) {
         editedProgram->setContent(&programBuffer.params, false);
         for (int o = 0; o < 4; o++)
@@ -267,8 +278,15 @@ void MainWindow::on_UITimer_timeout()
         waitforParam = false;
     }
 
+    if (needRefresh) {
+        globalRead();
+        programRead(programIndex);
+        needRefresh = false;
+    }
+
     for (int o = 0; o < 4; o++)
         editedOperators[o]->update();
+
     editedProgram->update();
     refreshProgramLeds();
 }
@@ -290,18 +308,24 @@ void MainWindow::refreshProgramLeds()
 }
 
 /*****************************************************************************/
+#define MIDI_DRUMS_CHANNEL  9
 void MainWindow::midiInCallback(uint8_t msg[])
 {
     uint8_t s = msg[0] & 0xF0;
     uint8_t c = msg[0] & 0x0F;
     midiChannelsAct[c] = true;
+
     switch (s) {
         case 0x80:
-            opa.noteOff(c, msg[1]);
+            if (c == MIDI_DRUMS_CHANNEL) drumMap(msg);
+            else opa.noteOff(c, msg[1]);
             break;
         case 0x90:
-            if (msg[2]) opa.noteOn(c, msg[1], msg[2]);
-            else opa.noteOff(c, msg[1]);
+            if (c == MIDI_DRUMS_CHANNEL) drumMap(msg);
+            else{
+                if (msg[2]) opa.noteOn(c, msg[1], msg[2]);
+                else opa.noteOff(c, msg[1]);
+            }
             break;
         case 0xB0:
             if (msg[1] == 0x78) opa.allSoundsOff();
@@ -318,6 +342,14 @@ void MainWindow::midiInCallback(uint8_t msg[])
     }
 }
 
+/*****************************************************************************/
+void MainWindow::drumMap(uint8_t msg[])
+{
+    int c = msg[1] % OPA_PROGS_NB;
+    int n = 36 + msg[1] / OPA_PROGS_NB;
+    if (msg[2]) opa.noteOn(c, n, msg[2]);
+    else opa.noteOff(c, n);
+}
 
 /*****************************************************************************/
 /* Work-around for transmission bug */
@@ -347,6 +379,36 @@ void MainWindow::programRead(int program)
 void MainWindow::programWrite(int program)
 {
 }
+
+/*****************************************************************************/
+/* Work-around for transmission bug */
+void MainWindow::globalRead()
+{
+    memset(&globalsBuffer, 0, sizeof(OpaGlobals));
+    uint8_t * gb = (uint8_t *) &globalsBuffer;
+    int value = 0;
+    for (int p = 0; p < sizeof(OpaGlobals); p++) {
+        opa.paramRead(OPA_GLOBAL_ID, p, &value);
+        while(opa.isWaitingParam()) opa.update();
+        * gb++ = value;
+    }
+    waitforGlobals = true;
+}
+
+void MainWindow::globalWrite()
+{
+
+}
+
+/*
+void MainWindow::globalRead()
+{
+    if (opa.isWaitingProgram()) return;
+    memset(&globalsBuffer, 0, sizeof(OpaGlobals));
+    opa.programRead(OPA_GLOBAL_ID, &globalsBuffer);
+    waitforGlobals = true;
+    }
+*/
 
 /*****************************************************************************/
 void MainWindow::on_i1Push_clicked()
@@ -526,4 +588,25 @@ void MainWindow::setAlgorithm(int a)
     ui->algo13Push->setChecked(a == 13);
 }
 
+
+/*****************************************************************************/
+void MainWindow::on_stealingButton_clicked()
+{
+    writeFlags();
+}
+
+/*****************************************************************************/
+void MainWindow::writeFlags()
+{
+    int flags = 0;
+    flags |= ui->memoryProtectionAction->isChecked() ? OPA_GLOBAL_PROTECT : 0;
+    flags |= ui->stealingButton->isChecked() ? OPA_GLOBAL_STEALING : 0;
+    opa.paramWrite(OPA_GLOBAL_ID, OPA_GLOBAL_FLAGS, flags);
+}
+
+void MainWindow::setFlags(int flags)
+{
+    ui->memoryProtectionAction->setChecked(flags & OPA_GLOBAL_PROTECT);
+    ui->stealingButton->setChecked(flags & OPA_GLOBAL_STEALING);
+}
 

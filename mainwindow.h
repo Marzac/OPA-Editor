@@ -58,6 +58,8 @@ public:
 
     void programRead(int program);
     void programWrite(int program);
+    void globalRead();
+    void globalWrite();
 
     void refresh();
     static MainWindow * getInstance();
@@ -100,9 +102,12 @@ private slots:
 
     void on_masterTuneDial_valueChanged(int value);
     void on_masterVolumeDial_valueChanged(int value);
-
+    void on_stealingButton_clicked();
 
 private:
+    void writeFlags();
+    void setFlags(int flags);
+
     void refreshProgramLeds();
 
 private:
@@ -117,11 +122,16 @@ private:
     int algorithm;
 
     OpaProgram programBuffer;
+    OpaGlobals globalsBuffer;
+    bool waitforGlobals;
     bool waitforProgram;
     bool waitforParam;
+    bool needRefresh;
 
     MidiIn * midiIn;
     static void midiInCallback(uint8_t msg[]);
+    static void drumMap(uint8_t msg[]);
+
     static int midiBendRange;
     static bool midiChannelsAct[16];
 

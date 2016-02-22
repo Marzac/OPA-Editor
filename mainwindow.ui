@@ -7,19 +7,19 @@
     <x>0</x>
     <y>0</y>
     <width>1020</width>
-    <height>710</height>
+    <height>720</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>1020</width>
-    <height>710</height>
+    <height>720</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>1020</width>
-    <height>710</height>
+    <height>720</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -76,7 +76,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>300</y>
+      <y>310</y>
       <width>421</width>
       <height>281</height>
      </rect>
@@ -99,7 +99,7 @@
     <property name="geometry">
      <rect>
       <x>440</x>
-      <y>300</y>
+      <y>310</y>
       <width>421</width>
       <height>281</height>
      </rect>
@@ -353,9 +353,9 @@
     <property name="geometry">
      <rect>
       <x>870</x>
-      <y>460</y>
+      <y>440</y>
       <width>141</width>
-      <height>121</height>
+      <height>151</height>
      </rect>
     </property>
     <property name="title">
@@ -484,12 +484,28 @@
       <set>Qt::TextEditorInteraction</set>
      </property>
     </widget>
+    <widget class="QPushButton" name="stealingButton">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>115</y>
+       <width>121</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Voice stealing</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
    </widget>
    <widget class="QPushButton" name="algo1Push">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>590</y>
+      <y>600</y>
       <width>71</width>
       <height>71</height>
      </rect>
@@ -512,7 +528,7 @@
     <property name="geometry">
      <rect>
       <x>85</x>
-      <y>590</y>
+      <y>600</y>
       <width>71</width>
       <height>71</height>
      </rect>
@@ -535,7 +551,7 @@
     <property name="geometry">
      <rect>
       <x>160</x>
-      <y>590</y>
+      <y>600</y>
       <width>71</width>
       <height>71</height>
      </rect>
@@ -558,7 +574,7 @@
     <property name="geometry">
      <rect>
       <x>235</x>
-      <y>590</y>
+      <y>600</y>
       <width>71</width>
       <height>71</height>
      </rect>
@@ -581,7 +597,7 @@
     <property name="geometry">
      <rect>
       <x>310</x>
-      <y>590</y>
+      <y>600</y>
       <width>71</width>
       <height>71</height>
      </rect>
@@ -607,7 +623,7 @@
     <property name="geometry">
      <rect>
       <x>385</x>
-      <y>590</y>
+      <y>600</y>
       <width>71</width>
       <height>71</height>
      </rect>
@@ -630,7 +646,7 @@
     <property name="geometry">
      <rect>
       <x>460</x>
-      <y>590</y>
+      <y>600</y>
       <width>71</width>
       <height>71</height>
      </rect>
@@ -656,7 +672,7 @@
     <property name="geometry">
      <rect>
       <x>535</x>
-      <y>590</y>
+      <y>600</y>
       <width>71</width>
       <height>71</height>
      </rect>
@@ -682,7 +698,7 @@
     <property name="geometry">
      <rect>
       <x>760</x>
-      <y>590</y>
+      <y>600</y>
       <width>71</width>
       <height>71</height>
      </rect>
@@ -708,7 +724,7 @@
     <property name="geometry">
      <rect>
       <x>835</x>
-      <y>590</y>
+      <y>600</y>
       <width>71</width>
       <height>71</height>
      </rect>
@@ -734,7 +750,7 @@
     <property name="geometry">
      <rect>
       <x>685</x>
-      <y>590</y>
+      <y>600</y>
       <width>71</width>
       <height>71</height>
      </rect>
@@ -760,7 +776,7 @@
     <property name="geometry">
      <rect>
       <x>610</x>
-      <y>590</y>
+      <y>600</y>
       <width>71</width>
       <height>71</height>
      </rect>
@@ -786,7 +802,7 @@
     <property name="geometry">
      <rect>
       <x>910</x>
-      <y>590</y>
+      <y>600</y>
       <width>71</width>
       <height>71</height>
      </rect>
@@ -844,6 +860,8 @@
     <addaction name="separator"/>
     <addaction name="allNotesOffAction"/>
     <addaction name="allSoundsOffAction"/>
+    <addaction name="separator"/>
+    <addaction name="memoryProtectionAction"/>
    </widget>
    <addaction name="fileMenu"/>
    <addaction name="connectionMenu"/>
@@ -891,6 +909,14 @@
   <action name="allSoundsOffAction">
    <property name="text">
     <string>All sounds off</string>
+   </property>
+  </action>
+  <action name="memoryProtectionAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Memory protection</string>
    </property>
   </action>
  </widget>

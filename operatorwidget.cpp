@@ -55,10 +55,9 @@ void OperatorWidget::setContent(const OpaOperatorParams * params, bool send)
     QString text;
     opa.setEnable(false);
 
-    updateFlags(params->flags);
-
+    setFlags(params->flags);
     ui->volumeSlide->setValue(params->volume);
-    ui->muteButton->setChecked(false);
+    on_volumeSlide_valueChanged(params->volume);
 
     int coarse = params->flags & OPA_OP_ABSOLUTE ?
         ((int8_t) params->coarse) + 128 : params->coarse;
@@ -76,31 +75,33 @@ void OperatorWidget::setContent(const OpaOperatorParams * params, bool send)
     ui->attackDial->setValue(params->envAttack);
     ui->decayDial->setValue(params->envDecay);
     ui->sustainDial->setValue(params->envSusLevel);
-    ui->sustainDial->setValue(params->envIniLevel);
+    ui->initDial ->setValue(params->envIniLevel);
     ui->releaseDial->setValue(params->envRelease);
+
+    updateEnvelope();
 
     opa.setEnable(true);
 
     if (send) {
-        writeFlags();
         opa.paramWrite(programIndex, getParamIndex(OPA_OP_VOLUME), params->volume);
         opa.paramWrite(programIndex, getParamIndex(OPA_OP_COARSE), params->coarse);
         opa.paramWrite(programIndex, getParamIndex(OPA_OP_FINE), params->fine);
         opa.paramWrite(programIndex, getParamIndex(OPA_OP_LFOSPEED), params->LFOSpeed);
         opa.paramWrite(programIndex, getParamIndex(OPA_OP_LFOAMOUNT), params->LFOAmount);
+        opa.paramWrite(programIndex, getParamIndex(OPA_OP_FEEDBACK), params->feedback);
         opa.paramWrite(programIndex, getParamIndex(OPA_OP_ENVATTACK), params->envAttack);
         opa.paramWrite(programIndex, getParamIndex(OPA_OP_ENVDECAY), params->envDecay);
         opa.paramWrite(programIndex, getParamIndex(OPA_OP_ENVSUSTAIN_LEVEL), params->envSusLevel);
         opa.paramWrite(programIndex, getParamIndex(OPA_OP_ENVINIT_LEVEL), params->envIniLevel);
         opa.paramWrite(programIndex, getParamIndex(OPA_OP_ENVRELEASE), params->envRelease);
-        opa.paramWrite(programIndex, getParamIndex(OPA_OP_FLAGS), params->flags);
+
+        writeFlags();
    }
 }
 
 void OperatorWidget::getContent(OpaOperatorParams * params)
 {
-    params->flags = 0;
-
+    params->flags = getFlags();
     params->volume = ui->volumeSlide->value();
 
     params->coarse = ui->coarseDial->value();
@@ -115,8 +116,6 @@ void OperatorWidget::getContent(OpaOperatorParams * params)
     params->envIniLevel = ui->initDial->value();
     params->envRelease = ui->releaseDial->value();
 
-    if (ui->absoluteButton->isChecked())
-        params->flags |= OPA_OP_ABSOLUTE;
 }
 
 /*****************************************************************************/
@@ -179,37 +178,40 @@ void OperatorWidget::on_fineDial_valueChanged(int value)
 void OperatorWidget::on_absoluteButton_clicked(bool checked)
 {
     on_coarseDial_valueChanged(ui->coarseDial->value());
-    int flag = checked ? OPA_OP_ABSOLUTE : 0;
-    opa.paramWrite(programIndex, getParamIndex(OPA_OP_FLAGS), flag);
     ui->coarseLine->setReadOnly(!checked);
+    writeFlags();
 }
 
 /*****************************************************************************/
 void OperatorWidget::on_attackDial_valueChanged(int value)
 {
     opa.paramWrite(programIndex, getParamIndex(OPA_OP_ENVATTACK), value);
+    updateEnvelope();
 }
 
 void OperatorWidget::on_decayDial_valueChanged(int value)
 {
     opa.paramWrite(programIndex, getParamIndex(OPA_OP_ENVDECAY), value);
+    updateEnvelope();
 }
 
 void OperatorWidget::on_sustainDial_valueChanged(int value)
 {
     opa.paramWrite(programIndex, getParamIndex(OPA_OP_ENVSUSTAIN_LEVEL), value);
+    updateEnvelope();
 }
 
 void OperatorWidget::on_initDial_valueChanged(int value)
 {
     opa.paramWrite(programIndex, getParamIndex(OPA_OP_ENVINIT_LEVEL), value);
+    updateEnvelope();
 }
 
 void OperatorWidget::on_releaseDial_valueChanged(int value)
 {
     opa.paramWrite(programIndex, getParamIndex(OPA_OP_ENVRELEASE), value);
+    updateEnvelope();
 }
-
 
 /*****************************************************************************/
 void OperatorWidget::on_LFOSpeedDial_valueChanged(int value)
@@ -231,17 +233,15 @@ void OperatorWidget::on_feedbackDial_valueChanged(int value)
 /*****************************************************************************/
 void OperatorWidget::on_muteButton_clicked(bool checked)
 {
-    if (checked)
-        opa.paramWrite(programIndex, getParamIndex(OPA_OP_VOLUME), 0);
-    else{
-        int value = ui->volumeSlide->value();
-        opa.paramWrite(programIndex, getParamIndex(OPA_OP_VOLUME), value);
-    }
+    writeFlags();
 }
 
 void OperatorWidget::on_volumeSlide_valueChanged(int value)
 {
     opa.paramWrite(programIndex, getParamIndex(OPA_OP_VOLUME), value);
+    QString volume;
+    volume.setNum(value, 10);
+    ui->volumeLine->setText(volume);
 }
 
 /*****************************************************************************/
@@ -268,23 +268,44 @@ void OperatorWidget::on_trackHardLowButton_clicked()
 /*****************************************************************************/
 void OperatorWidget::writeFlags()
 {
-    int flags = 0;
-    flags |= ui->absoluteButton->isChecked() ? OPA_OP_ABSOLUTE : 0;
-    flags |= ui->trackSoftLowButton->isChecked() ? OPA_OP_SOFT_LOW : 0;
-    flags |= ui->trackHardLowButton->isChecked() ? OPA_OP_HARD_LOW : 0;
-    flags |= ui->trackSoftHighButton->isChecked() ? OPA_OP_SOFT_HIGH : 0;
-    flags |= ui->trackHardHighButton->isChecked() ? OPA_OP_HARD_HIGH : 0;
+    int flags = getFlags();
     opa.paramWrite(programIndex, getParamIndex(OPA_OP_FLAGS), flags);
 }
 
-void OperatorWidget::updateFlags(int flags)
+/*****************************************************************************/
+void OperatorWidget::setFlags(int flags)
 {
     ui->absoluteButton->setChecked(flags & OPA_OP_ABSOLUTE);
     ui->trackSoftLowButton->setChecked(flags & OPA_OP_SOFT_LOW);
     ui->trackHardLowButton->setChecked(flags & OPA_OP_HARD_LOW);
     ui->trackSoftHighButton->setChecked(flags & OPA_OP_SOFT_HIGH);
     ui->trackHardHighButton->setChecked(flags & OPA_OP_HARD_HIGH);
+    ui->muteButton->setChecked(flags & OPA_OP_MUTED);
+
     ui->coarseLine->setReadOnly(!(flags & OPA_OP_ABSOLUTE));
+}
+
+int OperatorWidget::getFlags()
+{
+    int flags = 0;
+    flags |= ui->absoluteButton->isChecked() ? OPA_OP_ABSOLUTE : 0;
+    flags |= ui->trackSoftLowButton->isChecked() ? OPA_OP_SOFT_LOW : 0;
+    flags |= ui->trackHardLowButton->isChecked() ? OPA_OP_HARD_LOW : 0;
+    flags |= ui->trackSoftHighButton->isChecked() ? OPA_OP_SOFT_HIGH : 0;
+    flags |= ui->trackHardHighButton->isChecked() ? OPA_OP_HARD_HIGH : 0;
+    flags |= ui->muteButton->isChecked() ? OPA_OP_MUTED : 0;
+    return flags;
+}
+
+/*****************************************************************************/
+void OperatorWidget::updateEnvelope()
+{
+    ui->envelopeWidget->a = ui->attackDial->value();
+    ui->envelopeWidget->d = ui->decayDial->value();
+    ui->envelopeWidget->s = ui->sustainDial->value();
+    ui->envelopeWidget->i = ui->initDial->value();
+    ui->envelopeWidget->r = ui->releaseDial->value();
+    ui->envelopeWidget->repaint();
 }
 
 /*****************************************************************************/
@@ -306,7 +327,7 @@ void OperatorWidget::on_coarseLine_editingFinished()
     }else{
         v += 128;
         if (v > 255) {v = 255; ui->coarseLine->setText("127 semi");}
-        if (v < 0) {v = 0; ui->coarseLine->setText("-128 semi");}
+        else if (v < 0) {v = 0; ui->coarseLine->setText("-128 semi");}
         ui->coarseDial->setValue(v);
 
     }
@@ -320,9 +341,22 @@ void OperatorWidget::on_fineLine_editingFinished()
         on_fineDial_valueChanged(ui->fineDial->value());
     }else{
         if (v > 127) {v = 127; ui->fineLine->setText("127");}
-        if (v < -128) {v = -128; ui->fineLine->setText("-128");}
+        else if (v < -128) {v = -128; ui->fineLine->setText("-128");}
         ui->fineDial->setValue(v);
     }
 }
 
 /*****************************************************************************/
+void OperatorWidget::on_volumeLine_editingFinished()
+{
+    bool ok = false;
+    int v = ui->volumeLine->text().toInt(&ok);
+    if (!ok) {
+        on_volumeSlide_valueChanged(ui->volumeSlide->value());
+    }else{
+        if (v > 255) {v = 255; ui->volumeLine->setText("255");}
+        else if (v < 0) {v = 0; ui->volumeLine->setText("0");}
+        ui->volumeSlide->setValue(v);
+    }
+}
+

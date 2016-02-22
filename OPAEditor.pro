@@ -22,7 +22,8 @@ SOURCES += \
     opa.cpp \
     programfile.cpp \
     programwidget.cpp \
-    led.cpp
+    led.cpp \
+    envelope.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -33,7 +34,8 @@ HEADERS += \
     opa.h \
     programfile.h \
     programwidget.h \
-    led.h
+    led.h \
+    envelope.h
 
 FORMS += \
     mainwindow.ui \

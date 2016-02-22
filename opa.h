@@ -66,11 +66,11 @@ typedef enum{
     OPA_GLOBAL_VOLUME          = 0,
     OPA_GLOBAL_COARSE          = 1,
     OPA_GLOBAL_FINE            = 2,
-    OPA_GLOBAL_RESERVED1       = 3,
-    OPA_GLOBAL_RESERVED2       = 4,
-    OPA_GLOBAL_RESERVED3       = 5,
-    OPA_GLOBAL_RESERVED4       = 6,
-    OPA_GLOBAL_RESERVED5       = 7,
+    OPA_GLOBAL_FLAGS           = 3,
+    OPA_GLOBAL_RESERVED1       = 4,
+    OPA_GLOBAL_RESERVED2       = 5,
+    OPA_GLOBAL_RESERVED3       = 6,
+    OPA_GLOBAL_RESERVED4       = 7,
 }OPA_GLOBAL_PARAMS;
 
 typedef enum{
@@ -119,18 +119,25 @@ typedef enum{
     OPA_OP_HARD_LOW     = 4,
     OPA_OP_SOFT_HIGH    = 8,
     OPA_OP_HARD_HIGH    = 16,
+    OPA_OP_MUTED        = 32,
 }OPA_OP_FLAGSBITS;
+
+typedef enum{
+    OPA_GLOBAL_DEFAULT  = 1,
+    OPA_GLOBAL_STEALING	= 1,
+    OPA_GLOBAL_PROTECT	= 2,
+}OPA_GLOBAL_FLAGSBITS;
 
 /*****************************************************************************/
 typedef struct{
     uint8_t volume;
     int8_t  coarse;
     int8_t  fine;
+    uint8_t flags;
     uint8_t reserved1;
     uint8_t reserved2;
     uint8_t reserved3;
     uint8_t reserved4;
-    uint8_t reserved5;
 }OpaGlobals;
 
 typedef struct{
