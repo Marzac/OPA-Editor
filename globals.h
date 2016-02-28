@@ -38,6 +38,7 @@
 #include "programwidget.h"
 
 #include <QString>
+#include <sys/time.h>
 
 /*****************************************************************************/
 extern Opa opa;
@@ -51,6 +52,21 @@ extern ProgramWidget * editedProgram;
 /*****************************************************************************/
 void programNameFromQS(const QString &qsName, uint8_t opaName[]);
 void programNameToQS(const uint8_t opaName[], QString &qsName);
+
+/*****************************************************************************/
+int deltams(struct timeval t1, struct timeval t2);
+void waitms(int timeout);
+
+/*****************************************************************************/
+/** Yield instruction **/
+#ifdef __WIN32
+    void __stdcall Sleep(u32 dwMilliseconds);
+    #define yield() Sleep(0)
+#elif defined(__unix__) || defined(__unix) || \
+    (defined(__APPLE__) && defined(__MACH__))
+    #include <sched.h>
+    #define yield() sched_yield()
+#endif
 
 #endif // GLOBALS_H
 

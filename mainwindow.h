@@ -39,7 +39,7 @@
 
 #include "operatorwidget.h"
 #include "programwidget.h"
-#include "midiin.h"
+#include "midi/midiin.h"
 #include "led.h"
 
 namespace Ui {
@@ -61,6 +61,8 @@ public:
     void globalRead();
     void globalWrite();
 
+    void paramBulkRead(int program, int firstParam, uint8_t * paramBuffer, int noParams);
+
     void refresh();
     static MainWindow * getInstance();
 
@@ -69,8 +71,8 @@ public:
     int getAlgorithm() {return algorithm;}
 
 private slots:
-    void on_comTimer_timeout();
-    void on_UITimer_timeout();
+    void comTimer_timeout();
+    void UITimer_timeout();
 
     void on_helpMenu_triggered(QAction * action);
     void on_fileMenu_triggered(QAction * action);

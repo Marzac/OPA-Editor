@@ -84,11 +84,11 @@ MainWindow::MainWindow(QWidget *parent) :
     on_masterVolumeDial_valueChanged(0);
 
     comTimer = new QTimer(this);
-    connect(comTimer, SIGNAL(timeout()), this, SLOT(on_comTimer_timeout()));
+    connect(comTimer, SIGNAL(timeout()), this, SLOT(comTimer_timeout()));
     comTimer->start(5);
 
     UITimer = new QTimer(this);
-    connect(UITimer, SIGNAL(timeout()), this, SLOT(on_UITimer_timeout()));
+    connect(UITimer, SIGNAL(timeout()), this, SLOT(UITimer_timeout()));
     UITimer->start(20);
 
     statusLabel = new QLabel(this);
@@ -187,7 +187,6 @@ void MainWindow::on_connectionMenu_triggered(QAction * action)
 
         case MENU_ENTRY_ARDUINO:
         // Setup communication
-            if (opa.isConnected()) opa.disconnect();
             opa.connect(getMenuIndex(action));
             waitforProgram = false;
             waitforParam = false;
@@ -253,12 +252,12 @@ void MainWindow::on_helpMenu_triggered(QAction * action)
 }
 
 /*****************************************************************************/
-void MainWindow::on_comTimer_timeout()
+void MainWindow::comTimer_timeout()
 {
     opa.update();
 }
 
-void MainWindow::on_UITimer_timeout()
+void MainWindow::UITimer_timeout()
 {
     if (waitforGlobals && !opa.isWaitingProgram()) {
         setFlags(globalsBuffer.flags);
@@ -356,13 +355,7 @@ void MainWindow::drumMap(uint8_t msg[])
 void MainWindow::programRead(int program)
 {
     memset(&programBuffer, 0, sizeof(OpaProgram));
-    uint8_t * pb = (uint8_t *) &programBuffer;
-    int value = 0;
-    for (unsigned int p = 0; p < sizeof(OpaProgram); p++) {
-        opa.paramRead(program, p, &value);
-        while(opa.isWaitingParam()) opa.update();
-        * pb++ = value;
-    }
+    paramBulkRead(program, 0, (uint8_t *) &programBuffer, sizeof(OpaProgram));
     waitforProgram = true;
 }
 
@@ -385,13 +378,7 @@ void MainWindow::programWrite(int program)
 void MainWindow::globalRead()
 {
     memset(&globalsBuffer, 0, sizeof(OpaGlobals));
-    uint8_t * gb = (uint8_t *) &globalsBuffer;
-    int value = 0;
-    for (unsigned int p = 0; p < sizeof(OpaGlobals); p++) {
-        opa.paramRead(OPA_GLOBAL_ID, p, &value);
-        while(opa.isWaitingParam()) opa.update();
-        * gb++ = value;
-    }
+    paramBulkRead(OPA_GLOBAL_ID, 0, (uint8_t *) &globalsBuffer, sizeof(OpaGlobals));
     waitforGlobals = true;
 }
 
@@ -409,6 +396,26 @@ void MainWindow::globalRead()
     waitforGlobals = true;
     }
 */
+
+
+void MainWindow::paramBulkRead(int program, int firstParam, uint8_t * paramBuffer, int noParams)
+{
+    int timeout = 5000;
+    for (int p = 0; p < noParams; p++) {
+        struct timeval start, now;
+        int value = 0;
+        opa.paramRead(program, firstParam + p, &value);
+        yield();
+        gettimeofday(&start, NULL);
+        while(1) {
+            opa.update();
+            if (!opa.isWaitingParam()) break;
+            gettimeofday(&now, NULL);
+            if (deltams(now, start) > timeout) return;
+        }
+        paramBuffer[p] = value;
+    }
+}
 
 /*****************************************************************************/
 void MainWindow::on_i1Push_clicked()

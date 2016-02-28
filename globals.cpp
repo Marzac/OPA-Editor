@@ -54,3 +54,22 @@ void programNameToQS(const uint8_t opaName[], QString &qsName)
     txt[OPA_PROGS_NAME_LEN] = '\0';
     qsName = (QString) txt;
 }
+
+/*****************************************************************************/
+int deltams(struct timeval t1, struct timeval t2)
+{
+    int ms = (t1.tv_sec - t2.tv_sec) * 1000;
+    ms += (t1.tv_usec - t2.tv_usec + 500) / 1000;
+    return ms;
+}
+
+void waitms(int timeout)
+{
+    struct timeval start, now;
+    gettimeofday(&start, NULL);
+    while(1) {
+        gettimeofday(&now, NULL);
+        if (deltams(now, start) > timeout) break;
+        yield();
+    }
+}

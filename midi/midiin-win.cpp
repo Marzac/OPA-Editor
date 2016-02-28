@@ -31,10 +31,17 @@
 
 #include "midiin.h"
 
+#ifdef _WIN32
+
 #include "windef.h"
 #include "mmsystem.h"
 
-MidiIn::MidiIn(int index, MIDIINCALLBACK callback)
+/*****************************************************************************/
+int __stdcall MsgCallback(uint32_t hmi, uint32_t msg, uint32_t instance, uint32_t param1, uint32_t param2);
+
+/*****************************************************************************/
+MidiIn::MidiIn(int index, MIDIINCALLBACK callback) :
+    handle(0), callback(callback)
 {
     midiInOpen((LPHMIDIIN) &handle, index, (uint64_t) MsgCallback, (uint64_t)this, CALLBACK_FUNCTION);
     midiInStart((HMIDIIN) handle);
@@ -67,9 +74,15 @@ const char * MidiIn::getDeviceInName(int index)
 }
 
 /*****************************************************************************/
-int __stdcall MidiIn::MsgCallback(uint32_t hmi, uint32_t msg, uint32_t instance, uint32_t param1, uint32_t param2)
+void MidiIn::threadFunction()
+{
+}
+
+/*****************************************************************************/
+int __stdcall MsgCallback(uint32_t hmi, uint32_t msg, uint32_t instance, uint32_t param1, uint32_t param2)
 {
     MidiIn * midiIn = (MidiIn *) instance;
+    if (!midiIn) return 0;
     if (msg != MIM_DATA) return 0;
     uint8_t data[4];
     data[0] = param1;
@@ -79,3 +92,5 @@ int __stdcall MidiIn::MsgCallback(uint32_t hmi, uint32_t msg, uint32_t instance,
     if (midiIn->callback) midiIn->callback(data);
     return 0;
 }
+
+#endif

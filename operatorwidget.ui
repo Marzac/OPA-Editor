@@ -190,6 +190,11 @@
      <height>20</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>8</pointsize>
+    </font>
+   </property>
    <property name="text">
     <string>Attack</string>
    </property>
@@ -205,6 +210,11 @@
      <width>71</width>
      <height>20</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>8</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Decay</string>
@@ -222,6 +232,11 @@
      <height>20</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>8</pointsize>
+    </font>
+   </property>
    <property name="text">
     <string>Sustain</string>
    </property>
@@ -237,6 +252,11 @@
      <width>71</width>
      <height>20</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>8</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Release</string>
@@ -321,8 +341,13 @@
      <height>20</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>8</pointsize>
+    </font>
+   </property>
    <property name="text">
-    <string>LFO Speed</string>
+    <string>LFOSpeed</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>
@@ -359,8 +384,13 @@
      <height>20</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>8</pointsize>
+    </font>
+   </property>
    <property name="text">
-    <string>LFO Amount</string>
+    <string>LFOAmount</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>
@@ -396,6 +426,11 @@
      <width>71</width>
      <height>20</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>8</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Feedback</string>
@@ -517,6 +552,11 @@
      <height>20</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>8</pointsize>
+    </font>
+   </property>
    <property name="text">
     <string>Tracking</string>
    </property>
@@ -532,6 +572,11 @@
      <width>71</width>
      <height>20</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>8</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Env. Init</string>

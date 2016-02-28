@@ -34,12 +34,6 @@
 
 #include <stdint.h>
 #include <stddef.h>
-
-#ifndef __stdcall
-// If __stdcall is not defined, let it empty
-#define __stdcall
-#endif
- 
  
 typedef void (* MIDIINCALLBACK)(uint8_t msg[]);
 
@@ -49,14 +43,23 @@ public:
     MidiIn(int index, MIDIINCALLBACK callback = NULL);
     ~MidiIn();
 
+    void threadFunction();
+
     static int getNoDevices();
     static const char * getDeviceInName(int index);
 
 private:
-    static int __stdcall MsgCallback(uint32_t hmi, uint32_t msg, uint32_t instance, uint32_t param1, uint32_t param2);
-
     uint64_t handle;
     MIDIINCALLBACK callback;
+
+#if defined(__unix__) || defined(__unix)
+    uint64_t threadHandle;
+    bool threadRun;
+    int msgIndex;
+    int msgLength;
+    uint8_t msg[4];
+#endif
+
 };
 
 #endif // MIDIIN_H

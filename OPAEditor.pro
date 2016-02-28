@@ -47,7 +47,8 @@ win32:LIBS += \
     -luser32 \
     -lwinmm
 
-linux:LIBS +=
+linux:LIBS += \
+    -lasound
 
 QMAKE_CFLAGS += \
     -std=c99

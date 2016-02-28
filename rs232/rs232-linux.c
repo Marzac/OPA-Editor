@@ -34,6 +34,7 @@
 #if defined(__unix__) || defined(__unix) || \
     defined(__APPLE__) && defined(__MACH__)
 
+/*****************************************************************************/
 #define _DARWIN_C_SOURCE
 
 #include "rs232.h"
@@ -142,19 +143,23 @@ int comOpen(int index, int baudrate)
 // Open port
     printf("Try %s \n", comGetInternalName(index));
     int handle = open(comGetInternalName(index), O_RDWR | O_NOCTTY | O_NDELAY);
-    if (handle < 0)
-        return 0;
+    if (handle < 0) return 0;
     printf("Open %s \n", comGetInternalName(index));
 // General configuration
     struct termios config;
     memset(&config, 0, sizeof(config));
     tcgetattr(handle, &config);
-    config.c_iflag &= ~(INLCR | ICRNL);
-    config.c_iflag |= IGNPAR | IGNBRK;
-    config.c_oflag &= ~(OPOST | ONLCR | OCRNL);
-    config.c_cflag &= ~(PARENB | PARODD | CSTOPB | CSIZE | CRTSCTS);
+    //config.c_iflag &= ~(INLCR | ICRNL);
+    config.c_iflag &= ~(INPCK | ISTRIP | INLCR | IGNCR | ICRNL | IUCLC | IXON | IXANY | IXOFF | IUTF8);
+    //config.c_iflag |= IGNPAR | IGNBRK;
+    config.c_iflag |= IGNPAR | IGNBRK | IMAXBEL;
+    //config.c_oflag &= ~(OPOST | ONLCR | OCRNL);
+    config.c_oflag &= ~(OPOST | OLCUC | ONLCR | OCRNL | ONOCR | ONLRET | OFILL | OFDEL);
+    //config.c_cflag &= ~(PARENB | PARODD | CSTOPB | CSIZE | CRTSCTS);
+    config.c_cflag &= ~(CSIZE | CSTOPB | PARENB | PARODD | HUPCL | CMSPAR | CRTSCTS);
     config.c_cflag |= CLOCAL | CREAD | CS8;
-    config.c_lflag &= ~(ICANON | ISIG | ECHO);
+    //config.c_lflag &= ~(ICANON | ISIG | ECHO);
+    config.c_lflag &= ~(ISIG | ICANON | XCASE | ECHO | ECHOE | ECHOK | ECHONL | ECHOCTL | ECHOPRT | ECHOKE | FLUSHO | NOFLSH | TOSTOP | PENDIN | IEXTEN);
     int flag = _BaudFlag(baudrate);
     cfsetospeed(&config, flag);
     cfsetispeed(&config, flag);
@@ -242,7 +247,7 @@ int _BaudFlag(int BaudRate)
 
 void _AppendDevices(const char * base)
 {
-    int baseLen = strlen(base);
+    size_t baseLen = strlen(base);
     struct dirent * dp;
 // Enumerate devices
     DIR * dirp = opendir("/dev");
