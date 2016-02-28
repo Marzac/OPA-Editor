@@ -41,7 +41,7 @@ int __stdcall MsgCallback(uint32_t hmi, uint32_t msg, uint32_t instance, uint32_
 
 /*****************************************************************************/
 MidiIn::MidiIn(int index, MIDIINCALLBACK callback) :
-    handle(0), callback(callback)
+    callback(callback), handle(0)
 {
     midiInOpen((LPHMIDIIN) &handle, index, (uint64_t) MsgCallback, (uint64_t)this, CALLBACK_FUNCTION);
     midiInStart((HMIDIIN) handle);
@@ -89,7 +89,7 @@ int __stdcall MsgCallback(uint32_t hmi, uint32_t msg, uint32_t instance, uint32_
     data[1] = param1 >> 8;
     data[2] = param1 >> 16;
     data[3] = 0;
-    if (midiIn->callback) midiIn->callback(data);
+    midiIn->callback(data);
     return 0;
 }
 

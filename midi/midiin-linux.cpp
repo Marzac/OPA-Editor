@@ -46,7 +46,7 @@ void * alsaRawMidiInListener(void * data);
 
 /*****************************************************************************/
 MidiIn::MidiIn(int index, MIDIINCALLBACK callback) :
-    handle(0), callback(callback),
+    callback(callback), handle(0),
     threadHandle(0), threadRun(false),
     msgIndex(0), msgLength(255)
 {

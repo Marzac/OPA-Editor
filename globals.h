@@ -60,7 +60,9 @@ void waitms(int timeout);
 /*****************************************************************************/
 /** Yield instruction **/
 #ifdef __WIN32
-    void __stdcall Sleep(u32 dwMilliseconds);
+    extern "C" {
+        void __stdcall Sleep(uint32_t dwMilliseconds);
+    }
     #define yield() Sleep(0)
 #elif defined(__unix__) || defined(__unix) || \
     (defined(__APPLE__) && defined(__MACH__))

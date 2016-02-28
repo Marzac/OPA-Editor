@@ -48,9 +48,10 @@ public:
     static int getNoDevices();
     static const char * getDeviceInName(int index);
 
+    MIDIINCALLBACK callback;
+
 private:
     uint64_t handle;
-    MIDIINCALLBACK callback;
 
 #if defined(__unix__) || defined(__unix)
     uint64_t threadHandle;
