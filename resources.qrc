@@ -1,4 +1,4 @@
-<RCC>
+﻿<RCC>
     <qresource prefix="/images">
         <file>res/program-a.png</file>
         <file>res/program-b.png</file>

@@ -1,10 +1,10 @@
-/**
+ï»¿/**
     OPA Editor: MidiIn class
     MIDI input class (only windows yet)
 
     The MIT License (MIT)
 
-    Source code copyright (c) 2013-2016 Frédéric Meslin
+    Source code copyright (c) 2013-2016 FrÃ©dÃ©ric Meslin
     Email: fredericmeslin@hotmail.com
     Website: www.fredslab.net
     Twitter: @marzacdev

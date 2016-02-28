@@ -1,6 +1,6 @@
 ﻿/**
-    OPA Editor: LED windget
-    A basic LED GUI widget
+    OPA Editor: MidiIn class
+    MIDI input class (only windows yet)
 
     The MIT License (MIT)
 
@@ -29,37 +29,53 @@
 
 */
 
-#include "led.h"
-#include <QPainter>
+#include "midiin.h"
 
-Led::Led(QWidget *parent) :
-    QWidget(parent),
-    luminosity(0)
+#include "windef.h"
+#include "mmsystem.h"
+
+MidiIn::MidiIn(int index, MIDIINCALLBACK callback)
 {
+    midiInOpen((LPHMIDIIN) &handle, index, (uint64_t) MsgCallback, (uint64_t)this, CALLBACK_FUNCTION);
+    midiInStart((HMIDIIN) handle);
+    this->callback = callback;
+}
+
+MidiIn::~MidiIn()
+{
+    if (handle) {
+        midiInStop((HMIDIIN)handle);
+        midiInClose((HMIDIIN)handle);
+    }
 }
 
 /*****************************************************************************/
-void Led::paintEvent(QPaintEvent * event)
+int MidiIn::getNoDevices()
 {
-    QPainter painter(this);
-    painter.setRenderHint(QPainter::Antialiasing);
-    painter.setPen(QPen(Qt::black));
+    return midiInGetNumDevs();
+}
 
-    int r = 128 + (((255 - 128) * luminosity) >> 16);
-    QColor light = QColor(r, 0, 0);
-    painter.setBrush(QBrush(light));
+const char * MidiIn::getDeviceInName(int index)
+{
+    static char name[32+1];
+    MIDIINCAPSA caps;
+    if (midiInGetDevCapsA(index, &caps, sizeof(MIDIINCAPSA)) != MMSYSERR_NOERROR)
+        return NULL;
+    memset(name, 0, 32+1);
+    strncpy(name, caps.szPname, 32);
+    return name;
+}
 
-    float cw = width() * 0.5f;
-    float ch = height() * 0.5f;
-    QPointF center = QPointF(cw, ch);
-    painter.drawEllipse(center, cw - 2.0f, ch - 2.0f);
-
-    QColor dot = QColor(255, 200, 200);
-    painter.setPen(QPen(dot));
-    QPointF dot1 = QPointF(cw - 3.0f, ch - 2.0f);
-    painter.drawPoint(dot1);
-    QPointF dot2 = QPointF(cw - 2.0f, ch - 3.0f);
-    painter.drawPoint(dot2);
-    QPointF dot3 = QPointF(cw - 3.0f, ch - 1.0f);
-    painter.drawPoint(dot3);
+/*****************************************************************************/
+int __stdcall MidiIn::MsgCallback(uint32_t hmi, uint32_t msg, uint32_t instance, uint32_t param1, uint32_t param2)
+{
+    MidiIn * midiIn = (MidiIn *) instance;
+    if (msg != MIM_DATA) return 0;
+    uint8_t data[4];
+    data[0] = param1;
+    data[1] = param1 >> 8;
+    data[2] = param1 >> 16;
+    data[3] = 0;
+    if (midiIn->callback) midiIn->callback(data);
+    return 0;
 }

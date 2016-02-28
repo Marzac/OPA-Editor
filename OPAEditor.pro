@@ -18,7 +18,8 @@ SOURCES += \
     rs232/rs232-linux.c \
     rs232/rs232-win.c \
     globals.cpp \
-    midiin.cpp \
+    midi/midiin-linux.cpp \
+    midi/midiin-win.cpp \
     opa.cpp \
     programfile.cpp \
     programwidget.cpp \
@@ -30,7 +31,7 @@ HEADERS += \
     operatorwidget.h \
     rs232/rs232.h \
     globals.h \
-    midiin.h \
+    midi/midiin.h \
     opa.h \
     programfile.h \
     programwidget.h \
@@ -44,7 +45,9 @@ FORMS += \
 
 win32:LIBS += \
     -luser32 \
-    -lwinmm \
+    -lwinmm
+
+linux:LIBS +=
 
 QMAKE_CFLAGS += \
     -std=c99

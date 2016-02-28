@@ -1,4 +1,4 @@
-#include "envelope.h"
+﻿#include "envelope.h"
 #include <QPainter>
 #include <QDebug>
 

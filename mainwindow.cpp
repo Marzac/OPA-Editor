@@ -1,10 +1,10 @@
-/**
+ï»¿/**
     OPA Editor: Mainwindow
     Editor Mainwindow class
 
     The MIT License (MIT)
 
-    Source code copyright (c) 2013-2016 Frédéric Meslin
+    Source code copyright (c) 2013-2016 FrÃ©dÃ©ric Meslin
     Email: fredericmeslin@hotmail.com
     Website: www.fredslab.net
     Twitter: @marzacdev
