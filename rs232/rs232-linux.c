@@ -49,12 +49,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
 /*****************************************************************************/
 /** Base name for COM devices */
 #if defined(__APPLE__) && defined(__MACH__)
     static const char * devBases[] = {
-        "/dev/tty."
+        "tty."
     };
     static int noBases = 1;
 #else
@@ -149,17 +148,21 @@ int comOpen(int index, int baudrate)
     struct termios config;
     memset(&config, 0, sizeof(config));
     tcgetattr(handle, &config);
-    //config.c_iflag &= ~(INLCR | ICRNL);
-    config.c_iflag &= ~(INPCK | ISTRIP | INLCR | IGNCR | ICRNL | IUCLC | IXON | IXANY | IXOFF | IUTF8);
-    //config.c_iflag |= IGNPAR | IGNBRK;
+#if defined(__APPLE__) && defined(__MACH__)
+    config.c_iflag &= ~(INPCK | ISTRIP | INLCR | IGNCR | ICRNL | IXON | IXANY | IXOFF | IUTF8);
     config.c_iflag |= IGNPAR | IGNBRK | IMAXBEL;
-    //config.c_oflag &= ~(OPOST | ONLCR | OCRNL);
+    config.c_oflag &= ~(OPOST | ONLCR | OCRNL | ONOCR | ONLRET | OFILL | OFDEL);
+    config.c_cflag &= ~(CSIZE | CSTOPB | PARENB | PARODD | HUPCL | CRTSCTS);
+    config.c_cflag |= CLOCAL | CREAD | CS8;
+    config.c_lflag &= ~(ISIG | ICANON | ECHO | ECHOE | ECHOK | ECHONL | ECHOCTL | ECHOPRT | ECHOKE | FLUSHO | NOFLSH | TOSTOP | PENDIN | IEXTEN);
+#else
+    config.c_iflag &= ~(INPCK | ISTRIP | INLCR | IGNCR | ICRNL | IUCLC | IXON | IXANY | IXOFF | IUTF8);
+    config.c_iflag |= IGNPAR | IGNBRK | IMAXBEL;
     config.c_oflag &= ~(OPOST | OLCUC | ONLCR | OCRNL | ONOCR | ONLRET | OFILL | OFDEL);
-    //config.c_cflag &= ~(PARENB | PARODD | CSTOPB | CSIZE | CRTSCTS);
     config.c_cflag &= ~(CSIZE | CSTOPB | PARENB | PARODD | HUPCL | CMSPAR | CRTSCTS);
     config.c_cflag |= CLOCAL | CREAD | CS8;
-    //config.c_lflag &= ~(ICANON | ISIG | ECHO);
     config.c_lflag &= ~(ISIG | ICANON | XCASE | ECHO | ECHOE | ECHOK | ECHONL | ECHOCTL | ECHOPRT | ECHOKE | FLUSHO | NOFLSH | TOSTOP | PENDIN | IEXTEN);
+#endif
     int flag = _BaudFlag(baudrate);
     cfsetospeed(&config, flag);
     cfsetispeed(&config, flag);

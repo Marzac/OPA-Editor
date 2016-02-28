@@ -1,6 +1,6 @@
 ﻿/**
     OPA Editor: MidiIn class
-    MIDI input class (only windows yet)
+    MIDI input class - Linux support (ALSA)
 
     The MIT License (MIT)
 

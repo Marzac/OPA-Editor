@@ -1,6 +1,6 @@
 ﻿/**
     OPA Editor: MidiIn class
-    MIDI input class (only windows yet)
+    MIDI input class - Windows XP / 7 / 8 / 10  support
 
     The MIT License (MIT)
 
@@ -64,12 +64,12 @@ int MidiIn::getNoDevices()
 
 const char * MidiIn::getDeviceInName(int index)
 {
-    static char name[32+1];
+    static char name[128+1];
     MIDIINCAPSA caps;
     if (midiInGetDevCapsA(index, &caps, sizeof(MIDIINCAPSA)) != MMSYSERR_NOERROR)
         return NULL;
-    memset(name, 0, 32+1);
-    strncpy(name, caps.szPname, 32);
+    strncpy(name, caps.szPname, 128);
+    name[129] - 0;
     return name;
 }
 
