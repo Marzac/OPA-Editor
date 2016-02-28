@@ -62,6 +62,8 @@ private slots:
     void on_loadButton_clicked();
     void on_storeButton_clicked();
 
+    void on_nameLine_editingFinished();
+
 private:
     int programIndex;
 

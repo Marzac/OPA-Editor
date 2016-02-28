@@ -37,6 +37,8 @@
 #include "operatorwidget.h"
 #include "programwidget.h"
 
+#include <QString>
+
 /*****************************************************************************/
 extern Opa opa;
 extern OperatorWidget * editedOperators[4];
@@ -45,6 +47,10 @@ extern ProgramWidget * editedProgram;
 /*****************************************************************************/
 #define cmin(a, b) ((a) < (b) ? (a) : (b))
 #define cmax(a, b) ((a) > (b) ? (a) : (b))
+
+/*****************************************************************************/
+void programNameFromQS(const QString &qsName, uint8_t opaName[]);
+void programNameToQS(const uint8_t opaName[], QString &qsName);
 
 #endif // GLOBALS_H
 

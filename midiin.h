@@ -33,7 +33,14 @@
 #define MIDIIN_H
 
 #include <stdint.h>
+#include <stddef.h>
 
+#ifndef __stdcall
+// If __stdcall is not defined, let it empty
+#define __stdcall
+#endif
+ 
+ 
 typedef void (* MIDIINCALLBACK)(uint8_t msg[]);
 
 class MidiIn

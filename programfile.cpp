@@ -30,6 +30,7 @@
 */
 
 #include "programfile.h"
+#include "globals.h"
 
 #include <QFile>
 #include <QMessageBox>
@@ -92,14 +93,16 @@ void ProgramFile::readProgram(QXmlStreamReader &stream, OpaProgram * program)
 {
     bool ok;
     while (stream.readNextStartElement()) {
-        if (stream.name() == "algorithm")
+        if (stream.name() == "name") {
+            programNameFromQS(stream.readElementText(), program->params.name);
+        }else if (stream.name() == "algorithm")
             program->params.algorithm = stream.readElementText().toInt(&ok);
-        else if (stream.name() == "reserved")
-            program->params.reserved = stream.readElementText().toInt(&ok);
         else if (stream.name() == "volume")
             program->params.volume = stream.readElementText().toInt(&ok);
         else if (stream.name() == "panning")
             program->params.panning = stream.readElementText().toInt(&ok);
+        else if (stream.name() == "reserved")
+            program->params.reserved = stream.readElementText().toInt(&ok);
         else if (stream.name() == "Operator") {
             int o = stream.attributes().value("id").toInt(&ok);
             if (o >= 0 && o < OPA_ALGOS_OP_NB)
@@ -143,13 +146,16 @@ void ProgramFile::readOperator(QXmlStreamReader &stream, OpaOperatorParams * par
 void ProgramFile::writeProgram(QXmlStreamWriter &stream, const OpaProgram * program)
 {
     QString value;
-// Write the program
+// Write the program header
     stream.writeStartElement("OPA-Program");
     stream.writeAttribute("version", "1.0");
+// Write the program parameters
+    programNameToQS(program->params.name, value);
+    stream.writeTextElement("name",         value);
     stream.writeTextElement("algorithm",    value.setNum(program->params.algorithm));
-    stream.writeTextElement("reserved",     value.setNum(program->params.reserved));
     stream.writeTextElement("volume",       value.setNum(program->params.volume));
     stream.writeTextElement("panning",      value.setNum(program->params.panning));
+    stream.writeTextElement("reserved",     value.setNum(program->params.reserved));
 // Write the operators
     for (int i = 0; i < OPA_ALGOS_OP_NB; i++) {
         stream.writeStartElement("Operator");

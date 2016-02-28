@@ -38,3 +38,19 @@ OperatorWidget * editedOperators[4];
 ProgramWidget * editedProgram;
 int currentProgram;
 int currentAlgorithm;
+
+/*****************************************************************************/
+void programNameFromQS(const QString &qsName, uint8_t opaName[])
+{
+    QByteArray ba = qsName.toUtf8();
+    memset(opaName, 0, OPA_PROGS_NAME_LEN);
+    memcpy(opaName, ba.constData(), cmin(OPA_PROGS_NAME_LEN, ba.length()));
+}
+
+void programNameToQS(const uint8_t opaName[], QString &qsName)
+{
+    char txt[OPA_PROGS_NAME_LEN + 1];
+    memcpy(txt, opaName, OPA_PROGS_NAME_LEN);
+    txt[OPA_PROGS_NAME_LEN] = '\0';
+    qsName = (QString) txt;
+}

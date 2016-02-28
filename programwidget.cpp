@@ -57,27 +57,38 @@ ProgramWidget::~ProgramWidget()
 void ProgramWidget::setContent(const OpaProgramParams * params, bool send)
 {
     opa.setEnable(false);
-    MainWindow * mw = MainWindow::getInstance();
-    mw->setAlgorithm(params->algorithm);
+
+    QString name;
+    programNameToQS(params->name, name);
+    ui->nameLine->setText(name);
     ui->volumeDial->setValue(params->volume);
     ui->panningDial->setValue(params->panning);
+
+    MainWindow * mw = MainWindow::getInstance();
+    mw->setAlgorithm(params->algorithm);
+
     opa.setEnable(true);
 
     if (send) {
+        for (int i = 0; i < 8; i++)
+            opa.paramWrite(programIndex, OPA_CONFIG_ALGO, params->name[i]);
         opa.paramWrite(programIndex, OPA_CONFIG_ALGO, params->algorithm);
         opa.paramWrite(programIndex, OPA_CONFIG_VOLUME, params->volume);
         opa.paramWrite(programIndex, OPA_CONFIG_PANNING, params->panning);
         opa.paramWrite(programIndex, OPA_CONFIG_RESERVED, params->reserved);
+        for(int i = 0; i < OPA_PROGS_NAME_LEN; i++)
+            opa.paramWrite(programIndex, OPA_CONFIG_NAME + i, params->name[i]);
    }
 }
 
 void ProgramWidget::getContent(OpaProgramParams * params)
 {
+    programNameFromQS(ui->nameLine->text(), params->name);
     params->volume = ui->volumeDial->value();
     params->panning = ui->panningDial->value();
+
     MainWindow * mw = MainWindow::getInstance();
     params->algorithm = mw->getAlgorithm();
-
 }
 
 /*****************************************************************************/
@@ -164,4 +175,13 @@ void ProgramWidget::on_storeButton_clicked()
     int slot = ui->slotSpin->value() - 1;
     if (slot < 0) return;
     opa.programStore(programIndex, slot);
+}
+
+/*****************************************************************************/
+void ProgramWidget::on_nameLine_editingFinished()
+{
+    uint8_t name[OPA_PROGS_NAME_LEN];
+    programNameFromQS(ui->nameLine->text(), name);
+    for(int i = 0; i < OPA_PROGS_NAME_LEN; i++)
+        opa.paramWrite(programIndex, OPA_CONFIG_NAME + i, name[i]);
 }

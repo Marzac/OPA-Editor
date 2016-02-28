@@ -36,7 +36,7 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
-#include "Opa.h"
+#include "opa.h"
 
 class ProgramFile
 {

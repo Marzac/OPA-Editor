@@ -42,7 +42,7 @@ FORMS += \
     operatorwidget.ui \
     programwidget.ui
 
-LIBS += \
+win32:LIBS += \
     -luser32 \
     -lwinmm \
 

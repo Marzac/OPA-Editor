@@ -66,10 +66,11 @@ const OpaGlobals Opa::defaultGlobals = {
 };
 
 const OpaProgramParams Opa::defaultProgram = {
+    {'P', 'r', 'o', 'g', 'r', 'a', 'm', ' '},
     0x01,               // algorithm
-    0x00,               // reserved
     0xFF,               // volume
-    0x80                // panning
+    0x80,               // panning
+    0x00,               // reserved
 };
 
 const OpaOperatorParams Opa::defaultOperator = {
@@ -380,5 +381,3 @@ void Opa::pitchBend(int program, int coarse, int fine)
 // Send the message
     comWrite(port, buffer, 4);
 }
-
-/*****************************************************************************/

@@ -33,11 +33,11 @@
 #define OPA_H
 
 #include <stdint.h>
+#include <stddef.h>
 
 /*****************************************************************************/
-//#define OPA_COM_BAUDRATE       115200
-#define OPA_COM_BAUDRATE        9600
-#define OPA_RXBUFFER_LEN        256
+#define OPA_COM_BAUDRATE       115200
+#define OPA_RXBUFFER_LEN       256
 
 /*****************************************************************************/
 typedef enum{
@@ -74,10 +74,11 @@ typedef enum{
 }OPA_GLOBAL_PARAMS;
 
 typedef enum{
-    OPA_CONFIG_ALGO            = 0,
-    OPA_CONFIG_RESERVED        = 1,
-    OPA_CONFIG_VOLUME          = 2,
-    OPA_CONFIG_PANNING         = 3,
+    OPA_CONFIG_NAME            = 0,
+    OPA_CONFIG_ALGO            = 8,
+    OPA_CONFIG_VOLUME          = 9,
+    OPA_CONFIG_PANNING         = 10,
+    OPA_CONFIG_RESERVED        = 11,
 }OPA_CONFIG_PARAMS;
 
 typedef enum{
@@ -107,7 +108,8 @@ typedef enum{
 #define OPA_PROGS_NB            8
 
 #define OPA_GLOBAL_PARAMS_NB    8
-#define OPA_PROGS_PARAMS_NB     4
+#define OPA_PROGS_PARAMS_NB     12
+#define OPA_PROGS_NAME_LEN      8
 #define OPA_PROGS_OP_PARAMS_NB  16
 #define OPA_PROGS_PARAMS_TOTAL  (OPA_PROGS_PARAMS_NB + OPA_PROGS_OP_PARAMS_NB * OPA_ALGOS_OP_NB)
 
@@ -141,10 +143,11 @@ typedef struct{
 }OpaGlobals;
 
 typedef struct{
+    uint8_t name[8];
     uint8_t algorithm;
-    int8_t  reserved;
     uint8_t volume;
     uint8_t panning;
+    uint8_t reserved;
 }OpaProgramParams;
 
 typedef struct{

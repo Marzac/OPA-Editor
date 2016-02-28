@@ -16,7 +16,7 @@
   <widget class="QSlider" name="volumeSlide">
    <property name="geometry">
     <rect>
-     <x>373</x>
+     <x>368</x>
      <y>20</y>
      <width>25</width>
      <height>161</height>
@@ -184,9 +184,9 @@
   <widget class="QLabel" name="attackLabel">
    <property name="geometry">
     <rect>
-     <x>10</x>
+     <x>0</x>
      <y>110</y>
-     <width>51</width>
+     <width>71</width>
      <height>20</height>
     </rect>
    </property>
@@ -200,9 +200,9 @@
   <widget class="QLabel" name="decayLabel">
    <property name="geometry">
     <rect>
-     <x>80</x>
+     <x>70</x>
      <y>110</y>
-     <width>51</width>
+     <width>71</width>
      <height>20</height>
     </rect>
    </property>
@@ -216,9 +216,9 @@
   <widget class="QLabel" name="sustainLabel">
    <property name="geometry">
     <rect>
-     <x>150</x>
+     <x>140</x>
      <y>110</y>
-     <width>51</width>
+     <width>71</width>
      <height>20</height>
     </rect>
    </property>
@@ -232,9 +232,9 @@
   <widget class="QLabel" name="releaseLabel">
    <property name="geometry">
     <rect>
-     <x>220</x>
+     <x>210</x>
      <y>110</y>
-     <width>51</width>
+     <width>71</width>
      <height>20</height>
     </rect>
    </property>
@@ -248,9 +248,9 @@
   <widget class="QPushButton" name="muteButton">
    <property name="geometry">
     <rect>
-     <x>360</x>
+     <x>350</x>
      <y>228</y>
-     <width>49</width>
+     <width>61</width>
      <height>21</height>
     </rect>
    </property>
@@ -264,9 +264,9 @@
   <widget class="QPushButton" name="absoluteButton">
    <property name="geometry">
     <rect>
-     <x>150</x>
-     <y>30</y>
-     <width>51</width>
+     <x>140</x>
+     <y>40</y>
+     <width>71</width>
      <height>21</height>
     </rect>
    </property>
@@ -280,9 +280,9 @@
   <widget class="QLabel" name="absoluteLabel">
    <property name="geometry">
     <rect>
-     <x>150</x>
+     <x>140</x>
      <y>10</y>
-     <width>51</width>
+     <width>71</width>
      <height>20</height>
     </rect>
    </property>
@@ -511,9 +511,9 @@
   <widget class="QLabel" name="trackingLabel">
    <property name="geometry">
     <rect>
-     <x>290</x>
+     <x>280</x>
      <y>110</y>
-     <width>51</width>
+     <width>71</width>
      <height>20</height>
     </rect>
    </property>
@@ -527,9 +527,9 @@
   <widget class="QLabel" name="initLabel">
    <property name="geometry">
     <rect>
-     <x>10</x>
+     <x>0</x>
      <y>180</y>
-     <width>51</width>
+     <width>71</width>
      <height>20</height>
     </rect>
    </property>
@@ -594,9 +594,9 @@
   <widget class="QLineEdit" name="volumeLine">
    <property name="geometry">
     <rect>
-     <x>360</x>
+     <x>350</x>
      <y>195</y>
-     <width>51</width>
+     <width>61</width>
      <height>20</height>
     </rect>
    </property>

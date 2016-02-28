@@ -46,8 +46,8 @@ bool MainWindow::midiChannelsAct[16];
 /*****************************************************************************/
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    midiIn(NULL),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    midiIn(NULL)
 {
     instance = this;
 
@@ -244,7 +244,7 @@ void MainWindow::on_helpMenu_triggered(QAction * action)
             "Project design: Thomas Hopper\n\n"
             "(c) Frederic Meslin / Thomas Hopper 2015-2016\n"
             "http://fredslab.net\n\n"
-            "Version 0.7 18/02/2016\n\n"
+            "Version 0.7 28/02/2016\n\n"
             "Software distributed under open-source MIT license, please refer to licence.txt for more details\n"
         );
         msgBox.setStandardButtons(QMessageBox::Ok);
@@ -358,7 +358,7 @@ void MainWindow::programRead(int program)
     memset(&programBuffer, 0, sizeof(OpaProgram));
     uint8_t * pb = (uint8_t *) &programBuffer;
     int value = 0;
-    for (int p = 0; p < sizeof(OpaProgram); p++) {
+    for (unsigned int p = 0; p < sizeof(OpaProgram); p++) {
         opa.paramRead(program, p, &value);
         while(opa.isWaitingParam()) opa.update();
         * pb++ = value;
@@ -387,7 +387,7 @@ void MainWindow::globalRead()
     memset(&globalsBuffer, 0, sizeof(OpaGlobals));
     uint8_t * gb = (uint8_t *) &globalsBuffer;
     int value = 0;
-    for (int p = 0; p < sizeof(OpaGlobals); p++) {
+    for (unsigned int p = 0; p < sizeof(OpaGlobals); p++) {
         opa.paramRead(OPA_GLOBAL_ID, p, &value);
         while(opa.isWaitingParam()) opa.update();
         * gb++ = value;
