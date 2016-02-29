@@ -5,7 +5,8 @@
 #-------------------------------------------------
 
 QT += core gui
-
+QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.6
+QMAKE_CFLAGS += -std=c99
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = OPAEditor
@@ -44,9 +45,19 @@ FORMS += \
     operatorwidget.ui \
     programwidget.ui
 
+RESOURCES += \
+    resources.qrc
+
+#-------------------------------------------------
+# Platform specific directives
+#-------------------------------------------------
 win32:LIBS += \
     -luser32 \
     -lwinmm
+win32:RC_FILE = \
+    winrc.rc
+win32:DISTFILES += \
+    winrc.rc
 
 linux:LIBS += \
     -lasound
@@ -55,14 +66,6 @@ macx:LIBS += \
     -framework CoreAudio \
     -framework CoreFoundation \
     -framework CoreMidi
+macx:ICON = \
+    res/icon.icns
 
-QMAKE_CFLAGS += \
-    -std=c99
-
-RESOURCES += \
-    resources.qrc
-
-RC_FILE = winrc.rc
-
-DISTFILES += \
-    winrc.rc
