@@ -20,6 +20,7 @@ SOURCES += \
     globals.cpp \
     midi/midiin-linux.cpp \
     midi/midiin-win.cpp \
+    midi/midiin-mac.cpp \
     opa.cpp \
     programfile.cpp \
     programwidget.cpp \
@@ -49,6 +50,11 @@ win32:LIBS += \
 
 linux:LIBS += \
     -lasound
+
+macx:LIBS += \
+    -framework CoreAudio \
+    -framework CoreFoundation \
+    -framework CoreMidi
 
 QMAKE_CFLAGS += \
     -std=c99

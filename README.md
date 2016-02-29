@@ -5,8 +5,9 @@ Version 0.6, 31/01/2016
 Released under the MIT License (MIT), please refer to LICENCE file for more information  
 
 Supported platforms:  
-- Windows (XP / Win7, 8 and 10)  
-- Linux  
+- Windows (XP / 7 / 8 and 10)
+- MACOS X 10.6 - 10.10  
+- Linux
 
 Copyright (c) 2015 - 2016 Frédéric Meslin / Thomas Hopper  
 Email: fredericmeslin@hotmail.com  
