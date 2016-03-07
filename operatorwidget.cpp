@@ -94,7 +94,6 @@ void OperatorWidget::setContent(const OpaOperatorParams * params, bool send)
         opa.paramWrite(programIndex, getParamIndex(OPA_OP_ENVSUSTAIN_LEVEL), params->envSusLevel);
         opa.paramWrite(programIndex, getParamIndex(OPA_OP_ENVINIT_LEVEL), params->envIniLevel);
         opa.paramWrite(programIndex, getParamIndex(OPA_OP_ENVRELEASE), params->envRelease);
-
         writeFlags();
    }
 }
@@ -132,7 +131,7 @@ void OperatorWidget::setProgram(int program)
 }
 
 /*****************************************************************************/
-void OperatorWidget::update()
+void OperatorWidget::updateUI()
 {
 }
 

@@ -69,7 +69,7 @@ const char * MidiIn::getDeviceInName(int index)
     if (midiInGetDevCapsA(index, &caps, sizeof(MIDIINCAPSA)) != MMSYSERR_NOERROR)
         return NULL;
     strncpy(name, caps.szPname, 128);
-    name[129] - 0;
+    name[128] = 0;
     return name;
 }
 

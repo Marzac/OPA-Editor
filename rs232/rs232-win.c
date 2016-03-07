@@ -106,6 +106,7 @@ typedef struct _DCB {
 #define GENERIC_READ                0x80000000
 #define GENERIC_WRITE               0x40000000
 #define OPEN_EXISTING               3
+#define TRUNCATE_EXISTING           5
 #define MAX_DWORD                   0xFFFFFFFF
 
 /*****************************************************************************/
@@ -223,16 +224,26 @@ int comOpen(int index, int baudrate)
     SetCommTimeouts(handle, &timeouts);
 // Prepare serial communication format
     GetCommState(handle, &config);
+    config.DCBlength = sizeof(DCB);
     config.BaudRate = baudrate;
     config.fBinary = true;
     config.fParity = 0;
-    config.fErrorChar = 0;
-    config.fNull = 0;
+    config.fOutxCtsFlow = false;
+    config.fOutxDsrFlow = false;
+    config.fDtrControl = 0;
+    config.fDsrSensitivity = false;
+    config.fOutX = false;
+    config.fInX = false;
+    config.fErrorChar = false;
+    config.fNull = false;
+    config.fRtsControl = 0;
     config.fAbortOnError = 0;
     config.ByteSize = 8;
     config.Parity = 0;
     config.StopBits = 0;
-    config.EvtChar = '\n';
+    config.ErrorChar = '\0';
+    config.EofChar = '\0';
+    config.EvtChar = '\0';
 // Set the port state
     if (SetCommState(handle, &config) == 0) {
         CloseHandle(handle);

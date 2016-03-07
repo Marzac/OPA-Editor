@@ -25,8 +25,8 @@ void Envelope::paintEvent(QPaintEvent * event)
     float dx = (w4 * d) * scale;
     float rx = (w4 * r) * scale;
     float lx = w - ax - dx - w4;
-
-    float sl = h * (1.0f - s * scale);
+    float c = s * s * s / (255.0f * 255.0f);
+    float sl = h * (1.0f - c * scale);
     float il = h * (1.0f - i * scale);
     float ml = h * (1.0f - 255.0f / 256.0f);
 

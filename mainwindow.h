@@ -69,6 +69,7 @@ public:
     void setProgram(int i);
     void setAlgorithm(int a);
     int getAlgorithm() {return algorithm;}
+    bool getMemoryProtection();
 
 private slots:
     void comTimer_timeout();
@@ -104,7 +105,6 @@ private slots:
 
     void on_masterTuneDial_valueChanged(int value);
     void on_masterVolumeDial_valueChanged(int value);
-    void on_stealingButton_clicked();
 
 private:
     void writeFlags();
@@ -128,7 +128,9 @@ private:
     bool waitforGlobals;
     bool waitforProgram;
     bool waitforParam;
-    bool needRefresh;
+
+    bool needGlobalsRefresh;
+    bool needProgramRefresh;
 
     MidiIn * midiIn;
     static void midiInCallback(uint8_t msg[]);

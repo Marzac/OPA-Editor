@@ -55,52 +55,70 @@ const uint16_t opaComLengths[] = {
 
 /*****************************************************************************/
 const OpaGlobals Opa::defaultGlobals = {
-    0xFF,               // volume
-    0x00,               // coarse
-    0x00,               // fine
-    0x03,               // flags
-    0x00,               // reserved1
-    0x00,               // reserved2
-    0x00,               // reserved3
-    0x00,               // reserved4
+    0xFF,                   // volume
+    0x00,                   // coarse
+    0x00,                   // fine
+    OPA_GLOBAL_DEFAULT,     // flags
+    0x00,                   // reserved1
+    0x00,                   // reserved2
+    0x00,                   // reserved3
+    0x00,                   // reserved4
 };
 
-const OpaProgramParams Opa::defaultProgram = {
+const OpaProgramParams Opa::defaultProgramParams = {
     {'P', 'r', 'o', 'g', 'r', 'a', 'm', ' '},
-    0x01,               // algorithm
-    0xFF,               // volume
-    0x80,               // panning
-    0x00,               // reserved
+    0x01,                   // algorithm
+    0xFF,                   // volume
+    0x80,                   // panning
+    OPA_PROGRAM_DEFAULT,    // flags
 };
 
-const OpaOperatorParams Opa::defaultOperator = {
-    0x00,	// volume
-    0x20,	// coarse
-    0x00,	// fine
-    0x10,	// envAttack
-    0x20,	// envDecay
-    0xD0,	// envSusLevel
-    0x00,	// envSusTime;
-    0x40,	// envRelease;
-    0x20,	// LFOSpeed;
-    0x00,	// LFOAmount;
-    0x00,	// feedback;
-    0x00,	// flags;
-    0x00,   // reserved2
-    0x00,   // reserved3
-    0x00,   // reserved4
-    0x00,   // reserved5
+const OpaOperatorParams Opa::defaultOperatorParams = {
+    0x00,                   // volume
+    0x20,                   // coarse
+    0x00,                   // fine
+    0x10,                   // envAttack
+    0x20,                   // envDecay
+    0xD0,                   // envSusLevel
+    0x00,                   // envSusTime
+    0x40,                   // envRelease
+    0x20,                   // LFOSpeed
+    0x00,                   // LFOAmount
+    0x00,                   // feedback
+    OPA_OP_DEFAULT,         // flags
+    0x00,                   // reserved2
+    0x00,                   // reserved3
+    0x00,                   // reserved4
+    0x00,                   // reserved5
 };
+
+/*****************************************************************************/
+OpaProgram Opa::defaultProgram;
 
 /*****************************************************************************/
 Opa::Opa()
 {
+    initDefaultProgram();
     paramReturn = NULL;
     programReturn = NULL;
+    globalsReturn = NULL;
+
     rxLen = 0;
     port = -1;
+
     state = OPA_DISCONNECTED;
     enabled = true;
+}
+
+/*****************************************************************************/
+void Opa::initDefaultProgram()
+{
+    defaultProgram.params = defaultProgramParams;
+    defaultProgram.opParams[0] = defaultOperatorParams;
+    defaultProgram.opParams[1] = defaultOperatorParams;
+    defaultProgram.opParams[2] = defaultOperatorParams;
+    defaultProgram.opParams[3] = defaultOperatorParams;
+    defaultProgram.opParams[0].volume = 0xE0;
 }
 
 /*****************************************************************************/
@@ -114,9 +132,10 @@ void Opa::connect(int port)
     }
     this->port = port;
 
+    globalsReturn = NULL;
     programReturn = NULL;
-    paramReturn = 0;
     programReturnIndex = 0;
+    paramReturn = NULL;
     paramReturnIndex = 0;
 
     state = OPA_CONNECTED;
@@ -154,14 +173,19 @@ void Opa::update()
     }
 
 // Check for program
-    if (programReturn && rxLen >= 2 + sizeof(OpaProgram)) {
+    if (programReturn && rxLen >= 4 + sizeof(OpaProgram)) {
         parseProgram();
         rxLen = 0;
     }
 
+// Check for globals
+    if (globalsReturn && rxLen >= 3 + sizeof(OpaGlobals)) {
+        parseGlobals();
+        rxLen = 0;
+    }
 
 // Expected nothing
-    if (!paramReturn && !programReturn)
+    if (!paramReturn && !programReturn && !globalsReturn)
         rxLen = 0;
 }
 
@@ -186,6 +210,7 @@ void Opa::parseParameter()
     if (cmdIndex != OPA_PARAMWRITE) return;
     if (cmdParam != paramReturnIndex) return;
     fprintf(stdout, "Receiving param %i\n", cmdParam);
+    fflush(stdout);
     * paramReturn = rxBuffer[3];
     paramReturn = NULL;
     paramReturnIndex = 0;
@@ -195,36 +220,48 @@ void Opa::parseProgram()
 {
     char cmdIndex = rxBuffer[0];
     char cmdProg = rxBuffer[1];
-    if (cmdIndex != OPA_PROGRAMWRITE) return;
+    if (cmdIndex != OPA_PROGRAMWRITE &&
+        cmdIndex != OPA_INTERNALWRITE) return;
     if (cmdProg != programReturnIndex) return;
     fprintf(stdout, "Receiving program %i\n", cmdProg);
-    memcpy(programReturn, &rxBuffer[2], sizeof(OpaProgram));
+    fflush(stdout);
+    memcpy((void *) programReturn, &rxBuffer[4], sizeof(OpaProgram));
     programReturn = NULL;
     programReturnIndex = 0;
 }
 
+void Opa::parseGlobals()
+{
+    char cmdIndex = rxBuffer[0];
+    if (cmdIndex != OPA_GLOBALSWRITE) return;
+    fprintf(stdout, "Receiving globals\n");
+    fflush(stdout);
+    memcpy((void *) globalsReturn, &rxBuffer[3], sizeof(OpaGlobals));
+    globalsReturn = NULL;
+}
+
 /*****************************************************************************/
-void Opa::noteOn(int instrument, int note, int expression)
+void Opa::noteOn(int instrument, int note, int fraction)
 {
 // Check for port
     if (port < 0 || !enabled) return;
-    fprintf(stdout, "Note on %i: note: %i, expression: %i\n", instrument, note, expression);
+    fprintf(stdout, "Note on %i: note: %i, fraction: %i\n", instrument, note, fraction);
     fflush(stdout);
 // Prepare the message
     char buffer[4];
     buffer[0] = OPA_NOTEON;
     buffer[1] = instrument;
     buffer[2] = note;
-    buffer[3] = expression;
+    buffer[3] = 0;
 // Send the message
     comWrite(port, buffer, 4);
 }
 
-void Opa::noteOff(int instrument, int note)
+void Opa::noteOff(int instrument, int note, int fraction)
 {
 // Check for port
     if (port < 0 || !enabled) return;
-    fprintf(stdout, "Note off %i: note: %i\n", instrument, note);
+    fprintf(stdout, "Note off %i: note: %i, fraction: %i\n\n", instrument, note, fraction);
     fflush(stdout);
 // Prepare the message
     char buffer[4];
@@ -287,7 +324,7 @@ void Opa::paramRead(int program, int param, int * value)
     fprintf(stdout, "Program %i: reading param %i\n", program, param);
     fflush(stdout);
 // Store the pointer
-   // if (paramReturn || programReturn) return;
+    if (paramReturn || programReturn || globalsReturn) return;
     paramReturn = value;
     paramReturnIndex = param;
 // Prepare the message
@@ -301,68 +338,180 @@ void Opa::paramRead(int program, int param, int * value)
 }
 
 /*****************************************************************************/
-void Opa::programWrite(int program, OpaProgram * programData)
+void Opa::globalsParamWrite(int param, int value)
 {
 // Check for port
     if (port < 0 || !enabled) return;
-    fprintf(stdout, "Program write %i", program);
+    fprintf(stdout, "Globals: writing param %i, value: %i\n", param, value);
     fflush(stdout);
 // Prepare the message
-    char buffer[2 + sizeof(OpaProgram)];
+    char buffer[3];
+    buffer[0] = OPA_GLOBALSPARAMWRITE;
+    buffer[1] = param;
+    buffer[2] = value;
+// Send the message
+    comWrite(port, buffer, 3);
+}
+
+void Opa::globalsParamRead(int param, int * value)
+{
+// Check for port
+    if (port < 0 || !enabled) return;
+    fprintf(stdout, "Globals: reading param %i\n", param);
+    fflush(stdout);
+// Store the pointer
+    if (paramReturn || programReturn || globalsReturn) return;
+    paramReturn = value;
+    paramReturnIndex = param;
+// Prepare the message
+    char buffer[4];
+    buffer[0] = OPA_GLOBALSPARAMREAD;
+    buffer[1] = param;
+    buffer[2] = 0;
+// Send the message
+    comWrite(port, buffer, 3);
+}
+
+/*****************************************************************************/
+void Opa::programWrite(int program, const OpaProgram * programData)
+{
+// Check for port
+    if (port < 0 || !enabled) return;
+    fprintf(stdout, "Program write %i\n", program);
+    fflush(stdout);
+// Prepare the message
+    char buffer[4 + sizeof(OpaProgram)];
     buffer[0] = OPA_PROGRAMWRITE;
     buffer[1] = program;
-    memcpy(&buffer[2], programData, sizeof(OpaProgram));
+    buffer[2] = sizeof(OpaProgram);
+    buffer[3] = 0;
+    memcpy(&buffer[4], programData, sizeof(OpaProgram));
 // Send the message
-    comWrite(port, buffer, 2 + sizeof(OpaProgram));
+    comWrite(port, buffer, 4 + sizeof(OpaProgram));
 }
 
 void Opa::programRead(int program, OpaProgram * programData)
 {
 // Check for port
     if (port < 0 || !enabled) return;
-    fprintf(stdout, "Program read %i", program);
+    fprintf(stdout, "Program read %i\n", program);
     fflush(stdout);
 // Store the pointer
-    if (paramReturn || programReturn) return;
+    if (paramReturn || programReturn || globalsReturn) return;
     programReturn = programData;
     programReturnIndex = program;
 // Prepare the message
-    char buffer[2];
+    char buffer[4];
     buffer[0] = OPA_PROGRAMREAD;
     buffer[1] = program;
+    buffer[2] = sizeof(OpaProgram);
+    buffer[3] = 0;
 // Send the message
-    comWrite(port, buffer, 2);
+    comWrite(port, buffer, 4);
 }
 
 /*****************************************************************************/
-void Opa::programStore(int program, int slot)
+void Opa::globalsWrite(const OpaGlobals * globalsData)
 {
 // Check for port
     if (port < 0 || !enabled) return;
-    fprintf(stdout, "Program store %i: slot %i\n", program, slot);
+    fprintf(stdout, "Global write\n");
+    fflush(stdout);
+// Prepare the message
+    char buffer[3 + sizeof(OpaGlobals)];
+    buffer[0] = OPA_GLOBALSWRITE;
+    buffer[1] = sizeof(OpaGlobals);
+    buffer[2] = 0;
+    memcpy(&buffer[3], globalsData, sizeof(OpaGlobals));
+// Send the message
+    comWrite(port, buffer, 3 + sizeof(OpaGlobals));
+}
+
+void Opa::globalsRead(OpaGlobals * globalsData)
+{
+// Check for port
+    if (port < 0 || !enabled) return;
+    fprintf(stdout, "Global read\n");
+    fflush(stdout);
+// Store the pointer
+    if (paramReturn || programReturn || globalsReturn) return;
+    globalsReturn = globalsData;
+// Prepare the message
+    char buffer[3];
+    buffer[0] = OPA_GLOBALSREAD;
+    buffer[1] = sizeof(OpaGlobals);
+    buffer[2] = 0;
+// Send the message
+    comWrite(port, buffer, 3);
+}
+
+/*****************************************************************************/
+void Opa::internalStore(int program, int slot)
+{
+// Check for port
+    if (port < 0 || !enabled) return;
+    fprintf(stdout, "Internal store %i: slot %i\n", program, slot);
     fflush(stdout);
 // Prepare the message
     char buffer[3];
-    buffer[0] = OPA_PROGRAMSTORE;
+    buffer[0] = OPA_INTERNALSTORE;
     buffer[1] = program;
     buffer[2] = slot;
 // Send the message
     comWrite(port, buffer, 3);
 }
 
-void Opa::programLoad(int program, int slot)
+void Opa::internalLoad(int program, int slot)
 {
 // Check for port
     if (port < 0 || !enabled) return;
-    fprintf(stdout, "Program load %i: slot %i\n", program, slot);
+    fprintf(stdout, "Internal load %i: slot %i\n", program, slot);
     fflush(stdout);
 // Prepare the message
     char buffer[3];
-    buffer[0] = OPA_PROGRAMLOAD;
+    buffer[0] = OPA_INTERNALLOAD;
     buffer[1] = program;
     buffer[2] = slot;
 // Send the message
     comWrite(port, buffer, 3);
+}
+
+
+void Opa::internalWrite(int slot, const OpaProgram * programData)
+{
+// Check for port
+    if (port < 0 || !enabled) return;
+    fprintf(stdout, "Internal write %i", slot);
+    fflush(stdout);
+// Prepare the message
+    char buffer[4 + sizeof(OpaProgram)];
+    buffer[0] = OPA_INTERNALWRITE;
+    buffer[1] = slot;
+    buffer[2] = sizeof(OpaProgram);
+    buffer[3] = 0;
+    memcpy(&buffer[4], programData, sizeof(OpaProgram));
+// Send the message
+    comWrite(port, buffer, 4 + sizeof(OpaProgram));
+}
+
+void Opa::internalRead(int slot, OpaProgram * programData)
+{
+// Check for port
+    if (port < 0 || !enabled) return;
+    fprintf(stdout, "Internal read %i\n", slot);
+    fflush(stdout);
+// Store the pointer
+    if (paramReturn || programReturn || globalsReturn) return;
+    programReturn = programData;
+    programReturnIndex = slot;
+// Prepare the message
+    char buffer[4];
+    buffer[0] = OPA_INTERNALREAD;
+    buffer[1] = slot;
+    buffer[2] = sizeof(OpaProgram);
+    buffer[3] = 0;
+// Send the message
+    comWrite(port, buffer, 4);
 }
 
 /*****************************************************************************/
