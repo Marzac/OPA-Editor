@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>140</width>
-    <height>280</height>
+    <height>320</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -36,7 +36,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>152</y>
+     <y>185</y>
      <width>121</width>
      <height>24</height>
     </rect>
@@ -84,7 +84,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>80</y>
+     <y>115</y>
      <width>121</width>
      <height>24</height>
     </rect>
@@ -113,7 +113,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>131</y>
+     <y>160</y>
      <width>121</width>
      <height>24</height>
     </rect>
@@ -126,7 +126,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>221</y>
+     <y>255</y>
      <width>121</width>
      <height>24</height>
     </rect>
@@ -139,7 +139,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>200</y>
+     <y>230</y>
      <width>121</width>
      <height>24</height>
     </rect>
@@ -152,7 +152,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>250</y>
+     <y>290</y>
      <width>41</width>
      <height>22</height>
     </rect>
@@ -164,14 +164,14 @@
     <number>1</number>
    </property>
    <property name="maximum">
-    <number>90</number>
+    <number>104</number>
    </property>
   </widget>
   <widget class="QLabel" name="fileSystemLabel">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>110</y>
+     <y>140</y>
      <width>121</width>
      <height>20</height>
     </rect>
@@ -184,7 +184,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>180</y>
+     <y>210</y>
      <width>121</width>
      <height>20</height>
     </rect>
@@ -197,7 +197,7 @@
    <property name="geometry">
     <rect>
      <x>60</x>
-     <y>250</y>
+     <y>290</y>
      <width>71</width>
      <height>20</height>
     </rect>
@@ -212,6 +212,22 @@
     <string>Program</string>
    </property>
   </widget>
+  <widget class="QPushButton" name="stealingButton">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>80</y>
+     <width>121</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Voice stealing</string>
+   </property>
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+  </widget>
   <zorder>openButton</zorder>
   <zorder>volumeDial</zorder>
   <zorder>saveButton</zorder>
@@ -219,12 +235,13 @@
   <zorder>panningDial</zorder>
   <zorder>initButton</zorder>
   <zorder>panningLabel</zorder>
-  <zorder>storeButton</zorder>
   <zorder>loadButton</zorder>
   <zorder>slotSpin</zorder>
   <zorder>fileSystemLabel</zorder>
   <zorder>internalLabel</zorder>
   <zorder>nameLine</zorder>
+  <zorder>stealingButton</zorder>
+  <zorder>storeButton</zorder>
  </widget>
  <resources/>
  <connections/>

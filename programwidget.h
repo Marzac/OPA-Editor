@@ -51,6 +51,8 @@ public:
     void setContent(const OpaProgramParams * params,  bool send);
     void getContent(OpaProgramParams * params);
 
+    void updateUI();
+
 private slots:
     void on_volumeDial_valueChanged(int value);
     void on_panningDial_valueChanged(int value);
@@ -63,9 +65,18 @@ private slots:
     void on_storeButton_clicked();
 
     void on_nameLine_editingFinished();
+    void on_slotSpin_valueChanged(int value);
+    void on_stealingButton_clicked();
 
 private:
     int programIndex;
+    OpaProgram intProgramBuffer;
+    bool waitforIntProgram;
+
+private:
+    void writeFlags();
+    void setFlags(int flags);
+    int  getFlags();
 
 private:
     Ui::ProgramWidget *ui;

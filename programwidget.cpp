@@ -44,6 +44,8 @@ ProgramWidget::ProgramWidget(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::ProgramWidget)
 {
+    memset(&intProgramBuffer, 0, sizeof(OpaProgram));
+    waitforIntProgram = false;
     programIndex = 0;
     ui->setupUi(this);
 }
@@ -54,10 +56,22 @@ ProgramWidget::~ProgramWidget()
 }
 
 /*****************************************************************************/
+void ProgramWidget::updateUI()
+{
+    if (waitforIntProgram && !opa.isWaitingProgram()) {
+        QString name;
+        programNameToQS(intProgramBuffer.params.name, name);
+        ui->nameLine->setText(name);
+        waitforIntProgram = false;
+    }
+}
+
+/*****************************************************************************/
 void ProgramWidget::setContent(const OpaProgramParams * params, bool send)
 {
     opa.setEnable(false);
 
+    setFlags(params->flags);
     QString name;
     programNameToQS(params->name, name);
     ui->nameLine->setText(name);
@@ -75,14 +89,16 @@ void ProgramWidget::setContent(const OpaProgramParams * params, bool send)
         opa.paramWrite(programIndex, OPA_CONFIG_ALGO, params->algorithm);
         opa.paramWrite(programIndex, OPA_CONFIG_VOLUME, params->volume);
         opa.paramWrite(programIndex, OPA_CONFIG_PANNING, params->panning);
-        opa.paramWrite(programIndex, OPA_CONFIG_RESERVED, params->reserved);
+        opa.paramWrite(programIndex, OPA_CONFIG_FLAGS, params->flags);
         for(int i = 0; i < OPA_PROGS_NAME_LEN; i++)
             opa.paramWrite(programIndex, OPA_CONFIG_NAME + i, params->name[i]);
+        writeFlags();
    }
 }
 
 void ProgramWidget::getContent(OpaProgramParams * params)
 {
+    params->flags = getFlags();
     programNameFromQS(ui->nameLine->text(), params->name);
     params->volume = ui->volumeDial->value();
     params->panning = ui->panningDial->value();
@@ -111,17 +127,13 @@ void ProgramWidget::on_panningDial_valueChanged(int value)
 /*****************************************************************************/
 void ProgramWidget::on_initButton_clicked()
 {
-// Init the program
-    setContent(&Opa::defaultProgram, true);
-    OpaOperatorParams params = Opa::defaultOperator;
-    params.volume = 0xE0;
-    editedOperators[0]->setContent(&params, true);
-    for (int o = 1; o < OPA_ALGOS_OP_NB; o++)
-        editedOperators[o]->setContent(&Opa::defaultOperator, true);
+// Update the shield
+    opa.programWrite(programIndex, &Opa::defaultProgram);
 
-// Refresh the window
-    MainWindow * mw = MainWindow::getInstance();
-    mw->refresh();
+// Update the UI
+    setContent(&Opa::defaultProgram.params, false);
+    for (int o = 0; o < OPA_ALGOS_OP_NB; o++)
+        editedOperators[o]->setContent(&Opa::defaultProgram.opParams[o], false);
 }
 
 
@@ -135,13 +147,14 @@ void ProgramWidget::on_openButton_clicked()
     OpaProgram prog;
     ProgramFile progFile(fileName);
     progFile.load(&prog);
-    setContent(&prog.params, true);
-    for (int o = 0; o < OPA_ALGOS_OP_NB; o++)
-        editedOperators[o]->setContent(&prog.opParams[o], true);
 
-// Refresh the window
-    MainWindow * mw = MainWindow::getInstance();
-    mw->refresh();
+// Update the shield
+    opa.programWrite(programIndex, &prog);
+
+// Update the UI
+    setContent(&prog.params, false);
+    for (int o = 0; o < OPA_ALGOS_OP_NB; o++)
+        editedOperators[o]->setContent(&prog.opParams[o], false);
 }
 
 void ProgramWidget::on_saveButton_clicked()
@@ -165,16 +178,33 @@ void ProgramWidget::on_loadButton_clicked()
 {
     int slot = ui->slotSpin->value() - 1;
     if (slot < 0) return;
-    opa.programLoad(programIndex, slot);
+
+// Load the program
+    opa.internalLoad(programIndex, slot);
+
+// Update the UI
+    MainWindow * mw = MainWindow::getInstance();
+    mw->programRead(programIndex);
 }
 
 void ProgramWidget::on_storeButton_clicked()
 {
-    QMessageBox mb(QMessageBox::Warning, "OPA Editor", "This will discard any previously stored program, continue?", QMessageBox::Yes | QMessageBox::No, this);
+// Check memory protection
+    MainWindow * mw = MainWindow::getInstance();
+    if (mw->getMemoryProtection()) {
+        QMessageBox mb(QMessageBox::Information, "OPA Editor", "Internal memory is protected!\n\nMemory protection can be disabled using the device menu.", QMessageBox::Ok, this);
+        mb.exec();
+        return;
+    }
+
+// Warn against data loss
+    QMessageBox mb(QMessageBox::Warning, "OPA Editor", "This will discard previously stored program, continue?", QMessageBox::Yes | QMessageBox::No, this);
     if (mb.exec() == QMessageBox::No) return;
+
+// Store the program
     int slot = ui->slotSpin->value() - 1;
     if (slot < 0) return;
-    opa.programStore(programIndex, slot);
+    opa.internalStore(programIndex, slot);
 }
 
 /*****************************************************************************/
@@ -182,6 +212,38 @@ void ProgramWidget::on_nameLine_editingFinished()
 {
     uint8_t name[OPA_PROGS_NAME_LEN];
     programNameFromQS(ui->nameLine->text(), name);
-    for(int i = 0; i < OPA_PROGS_NAME_LEN; i++)
+    for (int i = 0; i < OPA_PROGS_NAME_LEN; i++)
         opa.paramWrite(programIndex, OPA_CONFIG_NAME + i, name[i]);
+}
+
+/*****************************************************************************/
+void ProgramWidget::writeFlags()
+{
+    int flags = 0;
+    flags |= ui->stealingButton->isChecked() ? OPA_PROGRAM_STEALING : 0;
+    opa.paramWrite(programIndex, OPA_CONFIG_FLAGS, flags);
+}
+
+int ProgramWidget::getFlags()
+{
+    int flags = 0;
+    flags |= ui->stealingButton->isChecked() ? OPA_PROGRAM_STEALING : 0;
+    return flags;
+}
+
+void ProgramWidget::setFlags(int flags)
+{
+    ui->stealingButton->setChecked(flags & OPA_PROGRAM_STEALING);
+}
+
+/*****************************************************************************/
+void ProgramWidget::on_slotSpin_valueChanged(int value)
+{
+    opa.internalRead(value - 1, &intProgramBuffer);
+    waitforIntProgram = true;
+}
+
+void ProgramWidget::on_stealingButton_clicked()
+{
+    writeFlags();
 }

@@ -53,7 +53,9 @@ RESOURCES += \
 #-------------------------------------------------
 win32:LIBS += \
     -luser32 \
-    -lwinmm
+    -lwinmm \
+    -lole32
+
 win32:RC_FILE = \
     winrc.rc
 win32:DISTFILES += \

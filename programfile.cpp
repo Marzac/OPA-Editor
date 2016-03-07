@@ -101,13 +101,14 @@ void ProgramFile::readProgram(QXmlStreamReader &stream, OpaProgram * program)
             program->params.volume = stream.readElementText().toInt(&ok);
         else if (stream.name() == "panning")
             program->params.panning = stream.readElementText().toInt(&ok);
-        else if (stream.name() == "reserved")
-            program->params.reserved = stream.readElementText().toInt(&ok);
+        else if (stream.name() == "flags")
+            program->params.flags = stream.readElementText().toInt(&ok);
         else if (stream.name() == "Operator") {
             int o = stream.attributes().value("id").toInt(&ok);
             if (o >= 0 && o < OPA_ALGOS_OP_NB)
                 readOperator(stream, &program->opParams[o]);
-        }
+        }else stream.readElementText();
+
     }
 }
 
@@ -139,6 +140,7 @@ void ProgramFile::readOperator(QXmlStreamReader &stream, OpaOperatorParams * par
             params->feedback = stream.readElementText().toInt(&ok);
         else if (stream.name() == "flags")
             params->flags = stream.readElementText().toInt(&ok);
+        else stream.readElementText();
     }
 }
 
@@ -155,7 +157,7 @@ void ProgramFile::writeProgram(QXmlStreamWriter &stream, const OpaProgram * prog
     stream.writeTextElement("algorithm",    value.setNum(program->params.algorithm));
     stream.writeTextElement("volume",       value.setNum(program->params.volume));
     stream.writeTextElement("panning",      value.setNum(program->params.panning));
-    stream.writeTextElement("reserved",     value.setNum(program->params.reserved));
+    stream.writeTextElement("flags",        value.setNum(program->params.flags));
 // Write the operators
     for (int i = 0; i < OPA_ALGOS_OP_NB; i++) {
         stream.writeStartElement("Operator");

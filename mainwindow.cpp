@@ -73,12 +73,17 @@ MainWindow::MainWindow(QWidget *parent) :
     for (int i = 0; i < 16; i++)
         midiChannelsAct[i] = false;
 
+    memset(&programBuffer, 0, sizeof(OpaProgram));
+    memset(&globalsBuffer, 0, sizeof(OpaGlobals));
+
+    needGlobalsRefresh = false;
+    needProgramRefresh = false;
     waitforGlobals = false;
     waitforProgram = false;
     waitforParam = false;
-    needRefresh = true;
 
     setProgram(0);
+    setAlgorithm(0);
 
     on_masterTuneDial_valueChanged(0);
     on_masterVolumeDial_valueChanged(0);
@@ -191,7 +196,8 @@ void MainWindow::on_connectionMenu_triggered(QAction * action)
             waitforProgram = false;
             waitforParam = false;
             waitforGlobals = false;
-            needRefresh = true;
+            needGlobalsRefresh = true;
+            needProgramRefresh = true;
 
         // Mark the menu
             for (int j = 0; j < actionsNb; j++)
@@ -259,34 +265,30 @@ void MainWindow::comTimer_timeout()
 
 void MainWindow::UITimer_timeout()
 {
-    if (waitforGlobals && !opa.isWaitingProgram()) {
+    if (waitforGlobals && !opa.isWaitingGlobals()) {
         setFlags(globalsBuffer.flags);
         ui->masterVolumeDial->setValue(globalsBuffer.volume);
         ui->masterTuneDial->setValue(globalsBuffer.coarse);
         waitforGlobals = false;
-    }
-
-    if (waitforProgram && !opa.isWaitingProgram()) {
+    }else if (waitforProgram && !opa.isWaitingProgram()) {
         editedProgram->setContent(&programBuffer.params, false);
         for (int o = 0; o < 4; o++)
             editedOperators[o]->setContent(&programBuffer.opParams[o], false);
         waitforProgram = false;
-    }
-
-    if (waitforParam && !opa.isWaitingParam()) {
+    }else if (waitforParam && !opa.isWaitingParam()) {
         waitforParam = false;
-    }
-
-    if (needRefresh) {
+    }else if (needGlobalsRefresh) {
         globalRead();
+        needGlobalsRefresh = false;
+    }else if (needProgramRefresh) {
         programRead(programIndex);
-        needRefresh = false;
+        needProgramRefresh = false;
     }
 
+    editedProgram->updateUI();
     for (int o = 0; o < 4; o++)
-        editedOperators[o]->update();
+        editedOperators[o]->updateUI();
 
-    editedProgram->update();
     refreshProgramLeds();
 }
 
@@ -317,13 +319,13 @@ void MainWindow::midiInCallback(uint8_t msg[])
     switch (s) {
         case 0x80:
             if (c == MIDI_DRUMS_CHANNEL) drumMap(msg);
-            else opa.noteOff(c, msg[1]);
+            else opa.noteOff(c, msg[1], 0);
             break;
         case 0x90:
             if (c == MIDI_DRUMS_CHANNEL) drumMap(msg);
             else{
-                if (msg[2]) opa.noteOn(c, msg[1], msg[2]);
-                else opa.noteOff(c, msg[1]);
+                if (msg[2]) opa.noteOn(c, msg[1], 0);
+                else opa.noteOff(c, msg[1], 0);
             }
             break;
         case 0xB0:
@@ -346,20 +348,11 @@ void MainWindow::drumMap(uint8_t msg[])
 {
     int c = msg[1] % OPA_PROGS_NB;
     int n = 36 + msg[1] / OPA_PROGS_NB;
-    if (msg[2]) opa.noteOn(c, n, msg[2]);
-    else opa.noteOff(c, n);
+    if (msg[2]) opa.noteOn(c, n, 0);
+    else opa.noteOff(c, n, 0);
 }
 
 /*****************************************************************************/
-/* Work-around for transmission bug */
-void MainWindow::programRead(int program)
-{
-    memset(&programBuffer, 0, sizeof(OpaProgram));
-    paramBulkRead(program, 0, (uint8_t *) &programBuffer, sizeof(OpaProgram));
-    waitforProgram = true;
-}
-
-/*
 void MainWindow::programRead(int program)
 {
     if (opa.isWaitingProgram()) return;
@@ -367,54 +360,24 @@ void MainWindow::programRead(int program)
     opa.programRead(program, &programBuffer);
     waitforProgram = true;
 }
-*/
+
 
 void MainWindow::programWrite(int program)
 {
 }
 
 /*****************************************************************************/
-/* Work-around for transmission bug */
 void MainWindow::globalRead()
 {
+    if (opa.isWaitingProgram()) return;
     memset(&globalsBuffer, 0, sizeof(OpaGlobals));
-    paramBulkRead(OPA_GLOBAL_ID, 0, (uint8_t *) &globalsBuffer, sizeof(OpaGlobals));
+    opa.globalsRead(&globalsBuffer);
     waitforGlobals = true;
 }
 
 void MainWindow::globalWrite()
 {
 
-}
-
-/*
-void MainWindow::globalRead()
-{
-    if (opa.isWaitingProgram()) return;
-    memset(&globalsBuffer, 0, sizeof(OpaGlobals));
-    opa.programRead(OPA_GLOBAL_ID, &globalsBuffer);
-    waitforGlobals = true;
-    }
-*/
-
-
-void MainWindow::paramBulkRead(int program, int firstParam, uint8_t * paramBuffer, int noParams)
-{
-    int timeout = 5000;
-    for (int p = 0; p < noParams; p++) {
-        struct timeval start, now;
-        int value = 0;
-        opa.paramRead(program, firstParam + p, &value);
-        yield();
-        gettimeofday(&start, NULL);
-        while(1) {
-            opa.update();
-            if (!opa.isWaitingParam()) break;
-            gettimeofday(&now, NULL);
-            if (deltams(now, start) > timeout) return;
-        }
-        paramBuffer[p] = value;
-    }
 }
 
 /*****************************************************************************/
@@ -564,7 +527,7 @@ void MainWindow::on_masterTuneDial_valueChanged(int value)
     QString semi;
     semi.setNum(value, 10);
     ui->masterTuneEditLabel->setText(semi + " semi");
-    opa.paramWrite(OPA_GLOBAL_ID, OPA_GLOBAL_COARSE, value);
+    opa.globalsParamWrite(OPA_GLOBAL_COARSE, value);
 }
 
 
@@ -573,7 +536,7 @@ void MainWindow::on_masterVolumeDial_valueChanged(int value)
     QString volume;
     volume.setNum(value, 10);
     ui->masterVolumeEditLabel->setText(volume);
-    opa.paramWrite(OPA_GLOBAL_ID, OPA_GLOBAL_VOLUME, value);
+    opa.globalsParamWrite(OPA_GLOBAL_VOLUME, value);
 }
 
 /*****************************************************************************/
@@ -595,25 +558,21 @@ void MainWindow::setAlgorithm(int a)
     ui->algo13Push->setChecked(a == 13);
 }
 
-
-/*****************************************************************************/
-void MainWindow::on_stealingButton_clicked()
-{
-    writeFlags();
-}
-
 /*****************************************************************************/
 void MainWindow::writeFlags()
 {
     int flags = 0;
     flags |= ui->memoryProtectionAction->isChecked() ? OPA_GLOBAL_PROTECT : 0;
-    flags |= ui->stealingButton->isChecked() ? OPA_GLOBAL_STEALING : 0;
-    opa.paramWrite(OPA_GLOBAL_ID, OPA_GLOBAL_FLAGS, flags);
+    opa.globalsParamWrite(OPA_GLOBAL_FLAGS, flags);
 }
 
 void MainWindow::setFlags(int flags)
 {
     ui->memoryProtectionAction->setChecked(flags & OPA_GLOBAL_PROTECT);
-    ui->stealingButton->setChecked(flags & OPA_GLOBAL_STEALING);
 }
 
+/*****************************************************************************/
+bool MainWindow::getMemoryProtection()
+{
+    return ui->memoryProtectionAction->isChecked();
+}

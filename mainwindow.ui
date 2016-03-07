@@ -124,7 +124,7 @@
       <x>870</x>
       <y>10</y>
       <width>141</width>
-      <height>421</height>
+      <height>461</height>
      </rect>
     </property>
     <property name="title">
@@ -264,7 +264,7 @@
        <x>-1</x>
        <y>140</y>
        <width>141</width>
-       <height>281</height>
+       <height>320</height>
       </rect>
      </property>
     </widget>
@@ -353,9 +353,9 @@
     <property name="geometry">
      <rect>
       <x>870</x>
-      <y>440</y>
+      <y>480</y>
       <width>141</width>
-      <height>151</height>
+      <height>111</height>
      </rect>
     </property>
     <property name="title">
@@ -365,7 +365,7 @@
      <property name="geometry">
       <rect>
        <x>70</x>
-       <y>20</y>
+       <y>10</y>
        <width>71</width>
        <height>20</height>
       </rect>
@@ -381,7 +381,7 @@
      <property name="geometry">
       <rect>
        <x>80</x>
-       <y>40</y>
+       <y>30</y>
        <width>49</width>
        <height>49</height>
       </rect>
@@ -403,7 +403,7 @@
      <property name="geometry">
       <rect>
        <x>80</x>
-       <y>90</y>
+       <y>80</y>
        <width>51</width>
        <height>17</height>
       </rect>
@@ -428,7 +428,7 @@
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>20</y>
+       <y>10</y>
        <width>71</width>
        <height>20</height>
       </rect>
@@ -444,7 +444,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>40</y>
+       <y>30</y>
        <width>49</width>
        <height>49</height>
       </rect>
@@ -463,7 +463,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>90</y>
+       <y>80</y>
        <width>51</width>
        <height>17</height>
       </rect>
@@ -482,22 +482,6 @@
      </property>
      <property name="textInteractionFlags">
       <set>Qt::TextEditorInteraction</set>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="stealingButton">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>115</y>
-       <width>121</width>
-       <height>25</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Voice stealing</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
      </property>
     </widget>
    </widget>

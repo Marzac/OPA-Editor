@@ -36,7 +36,7 @@
 #include <stddef.h>
 
 /*****************************************************************************/
-#define OPA_COM_BAUDRATE       115200
+#define OPA_COM_BAUDRATE       57600
 #define OPA_RXBUFFER_LEN       256
 
 /*****************************************************************************/
@@ -55,11 +55,17 @@ typedef enum{
     OPA_ALLSOUNDSOFF           = 4,
     OPA_PARAMWRITE             = 5,
     OPA_PARAMREAD              = 6,
-    OPA_PROGRAMWRITE           = 7,
-    OPA_PROGRAMREAD            = 8,
-    OPA_PROGRAMSTORE           = 9,
-    OPA_PROGRAMLOAD            = 10,
-    OPA_PITCHBEND              = 11,
+    OPA_GLOBALSPARAMWRITE      = 7,
+    OPA_GLOBALSPARAMREAD       = 8,
+    OPA_PROGRAMWRITE           = 9,
+    OPA_PROGRAMREAD            = 10,
+    OPA_GLOBALSWRITE           = 11,
+    OPA_GLOBALSREAD            = 12,
+    OPA_INTERNALSTORE          = 13,
+    OPA_INTERNALLOAD           = 14,
+    OPA_INTERNALWRITE          = 15,
+    OPA_INTERNALREAD           = 16,
+    OPA_PITCHBEND              = 17,
 }OPA_MESSAGES;
 
 typedef enum{
@@ -78,7 +84,7 @@ typedef enum{
     OPA_CONFIG_ALGO            = 8,
     OPA_CONFIG_VOLUME          = 9,
     OPA_CONFIG_PANNING         = 10,
-    OPA_CONFIG_RESERVED        = 11,
+    OPA_CONFIG_FLAGS           = 11,
 }OPA_CONFIG_PARAMS;
 
 typedef enum{
@@ -101,7 +107,6 @@ typedef enum{
 }OPA_OP_PARAMS;
 
 /*****************************************************************************/
-#define OPA_GLOBAL_ID           0xFE
 #define OPA_ALLPROGS_ID         0xFF
 
 #define OPA_ALGOS_OP_NB         4
@@ -115,20 +120,24 @@ typedef enum{
 
 /*****************************************************************************/
 typedef enum{
-    OPA_OP_DEFAULT      = 0,
+    OPA_GLOBAL_PROTECT	= 1,
+    OPA_GLOBAL_DEFAULT  = OPA_GLOBAL_PROTECT,
+}OPA_GLOBAL_FLAGSBITS;
+
+typedef enum{
+    OPA_PROGRAM_STEALING = 1,
+    OPA_PROGRAM_DEFAULT  = OPA_PROGRAM_STEALING,
+}OPA_PROGRAM_FLAGSBITS;
+
+typedef enum{
     OPA_OP_ABSOLUTE     = 1,
     OPA_OP_SOFT_LOW     = 2,
     OPA_OP_HARD_LOW     = 4,
     OPA_OP_SOFT_HIGH    = 8,
     OPA_OP_HARD_HIGH    = 16,
     OPA_OP_MUTED        = 32,
+    OPA_OP_DEFAULT      = 0,
 }OPA_OP_FLAGSBITS;
-
-typedef enum{
-    OPA_GLOBAL_DEFAULT  = 1,
-    OPA_GLOBAL_STEALING	= 1,
-    OPA_GLOBAL_PROTECT	= 2,
-}OPA_GLOBAL_FLAGSBITS;
 
 /*****************************************************************************/
 typedef struct{
@@ -147,7 +156,7 @@ typedef struct{
     uint8_t algorithm;
     uint8_t volume;
     uint8_t panning;
-    uint8_t reserved;
+    uint8_t flags;
 }OpaProgramParams;
 
 typedef struct{
@@ -189,40 +198,51 @@ public:
 
     void update();
 
-    void noteOn(int instrument, int note, int expression);
-    void noteOff(int instrument, int note);
+    void noteOn(int instrument, int note, int fraction);
+    void noteOff(int instrument, int note, int fraction);
     void allNotesOff(int instrument);
     void allSoundsOff();
 
     void paramWrite(int program, int param, int value);
     void paramRead(int program, int param, int * value);
+    void globalsParamWrite(int param, int value);
+    void globalsParamRead(int param, int * value);
 
-    void programWrite(int program, OpaProgram * programData);
+    void programWrite(int program, const OpaProgram * programData);
     void programRead(int program, OpaProgram * programData);
+    void globalsWrite(const OpaGlobals * globalsData);
+    void globalsRead(OpaGlobals * globalsData);
 
-    void programStore(int program, int slot);
-    void programLoad(int program, int slot);
+    void internalStore(int program, int slot);
+    void internalLoad(int program, int slot);
+    void internalWrite(int slot, const OpaProgram * programData);
+    void internalRead(int slot, OpaProgram * programData);
 
     void pitchBend(int program, int coarse, int fine);
 
     bool isWaitingProgram() {return NULL != programReturn;}
+    bool isWaitingGlobals() {return NULL != globalsReturn;}
     bool isWaitingParam() {return NULL != paramReturn;}
 
 public:
-    static const OpaProgramParams defaultProgram;
-    static const OpaOperatorParams defaultOperator;
     static const OpaGlobals defaultGlobals;
+    static const OpaProgramParams defaultProgramParams;
+    static const OpaOperatorParams defaultOperatorParams;
+    static OpaProgram defaultProgram;
+    static void initDefaultProgram();
 
 private:
     void parseParameter();
     void parseProgram();
+    void parseGlobals();
     void fetchSerialData();
 
     int * paramReturn;
     int paramReturnIndex;
 
-    OpaProgram * programReturn;
-    int programReturnIndex;
+    volatile OpaProgram * programReturn;
+    volatile OpaGlobals * globalsReturn;
+    volatile int programReturnIndex;
 
     char rxBuffer[OPA_RXBUFFER_LEN];
     unsigned int rxLen;

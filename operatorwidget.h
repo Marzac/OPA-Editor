@@ -53,7 +53,7 @@ public:
     void setContent(const OpaOperatorParams * params, bool send);
     void getContent(OpaOperatorParams * params);
 
-    void update();
+    void updateUI();
 
 private:
     void writeFlags();
