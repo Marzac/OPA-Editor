@@ -58,6 +58,7 @@ win32:LIBS += \
 
 win32:RC_FILE = \
     winrc.rc
+
 win32:DISTFILES += \
     winrc.rc
 
