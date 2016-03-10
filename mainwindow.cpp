@@ -239,6 +239,7 @@ void MainWindow::on_deviceMenu_triggered(QAction * action)
 }
 
 
+/*****************************************************************************/
 void MainWindow::on_helpMenu_triggered(QAction * action)
 {
     if (action == ui->aboutAction) {
@@ -249,7 +250,7 @@ void MainWindow::on_helpMenu_triggered(QAction * action)
             "Project design: Thomas Hopper\n\n"
             "(c) Frederic Meslin / Thomas Hopper 2015-2016\n"
             "http://fredslab.net\n\n"
-            "Version 0.7 28/02/2016\n\n"
+            "Version 0.8 07/03/2016\n\n"
             "Software distributed under open-source MIT license, please refer to licence.txt for more details\n"
         );
         msgBox.setStandardButtons(QMessageBox::Ok);
