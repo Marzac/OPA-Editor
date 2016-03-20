@@ -81,6 +81,7 @@ MainWindow::MainWindow(QWidget *parent) :
     waitforGlobals = false;
     waitforProgram = false;
     waitforParam = false;
+    connectDelay = 0;
 
     setProgram(0);
     setAlgorithm(0);
@@ -198,6 +199,7 @@ void MainWindow::on_connectionMenu_triggered(QAction * action)
             waitforGlobals = false;
             needGlobalsRefresh = true;
             needProgramRefresh = true;
+            connectDelay = 3000;
 
         // Mark the menu
             for (int j = 0; j < actionsNb; j++)
@@ -266,17 +268,19 @@ void MainWindow::comTimer_timeout()
 
 void MainWindow::UITimer_timeout()
 {
-    if (waitforGlobals && !opa.isWaitingGlobals()) {
+    if (connectDelay > 0) {
+        connectDelay -= 20;
+    }else if (waitforGlobals && !opa.isWaiting()) {
         setFlags(globalsBuffer.flags);
         ui->masterVolumeDial->setValue(globalsBuffer.volume);
         ui->masterTuneDial->setValue(globalsBuffer.coarse);
         waitforGlobals = false;
-    }else if (waitforProgram && !opa.isWaitingProgram()) {
+    }else if (waitforProgram && !opa.isWaiting()) {
         editedProgram->setContent(&programBuffer.params, false);
         for (int o = 0; o < 4; o++)
             editedOperators[o]->setContent(&programBuffer.opParams[o], false);
         waitforProgram = false;
-    }else if (waitforParam && !opa.isWaitingParam()) {
+    }else if (waitforParam && !opa.isWaiting()) {
         waitforParam = false;
     }else if (needGlobalsRefresh) {
         globalRead();
@@ -371,7 +375,7 @@ void MainWindow::drumMap(uint8_t msg[])
 /*****************************************************************************/
 void MainWindow::programRead(int program)
 {
-    if (opa.isWaitingProgram()) return;
+    if (opa.isWaiting()) return;
     memset(&programBuffer, 0, sizeof(OpaProgram));
     opa.programRead(program, &programBuffer);
     waitforProgram = true;
@@ -385,7 +389,7 @@ void MainWindow::programWrite(int program)
 /*****************************************************************************/
 void MainWindow::globalRead()
 {
-    if (opa.isWaitingProgram()) return;
+    if (opa.isWaiting()) return;
     memset(&globalsBuffer, 0, sizeof(OpaGlobals));
     opa.globalsRead(&globalsBuffer);
     waitforGlobals = true;

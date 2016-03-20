@@ -131,6 +131,7 @@ private:
 
     bool needGlobalsRefresh;
     bool needProgramRefresh;
+    int connectDelay;
 
     MidiIn * midiIn;
     static void midiInCallback(uint8_t msg[]);

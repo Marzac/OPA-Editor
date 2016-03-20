@@ -185,7 +185,7 @@ void Opa::update()
     }
 
 // Expected nothing
-    if (!paramReturn && !programReturn && !globalsReturn)
+    if (!isWaiting())
         rxLen = 0;
 }
 
@@ -196,10 +196,15 @@ void Opa::fetchSerialData()
     char tmp[64];
     do {
         len = comRead(port, tmp, 64);
+        if (len) {
+            fprintf(stdout, "Receiving data %i\n", len);
+            fflush(stdout);
+        }
         int cpy = cmin(len, OPA_RXBUFFER_LEN - rxLen);
         memcpy(&rxBuffer[rxLen], tmp, cpy);
         rxLen += cpy;
     }while(len);
+
 }
 
 /*****************************************************************************/
@@ -324,7 +329,7 @@ void Opa::paramRead(int program, int param, int * value)
     fprintf(stdout, "Program %i: reading param %i\n", program, param);
     fflush(stdout);
 // Store the pointer
-    if (paramReturn || programReturn || globalsReturn) return;
+    if (isWaiting()) return;
     paramReturn = value;
     paramReturnIndex = param;
 // Prepare the message
@@ -360,7 +365,7 @@ void Opa::globalsParamRead(int param, int * value)
     fprintf(stdout, "Globals: reading param %i\n", param);
     fflush(stdout);
 // Store the pointer
-    if (paramReturn || programReturn || globalsReturn) return;
+    if (isWaiting()) return;
     paramReturn = value;
     paramReturnIndex = param;
 // Prepare the message
@@ -397,7 +402,7 @@ void Opa::programRead(int program, OpaProgram * programData)
     fprintf(stdout, "Program read %i\n", program);
     fflush(stdout);
 // Store the pointer
-    if (paramReturn || programReturn || globalsReturn) return;
+    if (isWaiting()) return;
     programReturn = programData;
     programReturnIndex = program;
 // Prepare the message
@@ -434,7 +439,7 @@ void Opa::globalsRead(OpaGlobals * globalsData)
     fprintf(stdout, "Global read\n");
     fflush(stdout);
 // Store the pointer
-    if (paramReturn || programReturn || globalsReturn) return;
+    if (isWaiting()) return;
     globalsReturn = globalsData;
 // Prepare the message
     char buffer[3];
@@ -501,7 +506,7 @@ void Opa::internalRead(int slot, OpaProgram * programData)
     fprintf(stdout, "Internal read %i\n", slot);
     fflush(stdout);
 // Store the pointer
-    if (paramReturn || programReturn || globalsReturn) return;
+    if (isWaiting()) return;
     programReturn = programData;
     programReturnIndex = slot;
 // Prepare the message

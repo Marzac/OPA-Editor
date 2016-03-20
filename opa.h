@@ -220,9 +220,7 @@ public:
 
     void pitchBend(int program, int coarse, int fine);
 
-    bool isWaitingProgram() {return NULL != programReturn;}
-    bool isWaitingGlobals() {return NULL != globalsReturn;}
-    bool isWaitingParam() {return NULL != paramReturn;}
+    bool isWaiting() {return NULL != globalsReturn || NULL != programReturn || NULL != paramReturn;}
 
 public:
     static const OpaGlobals defaultGlobals;

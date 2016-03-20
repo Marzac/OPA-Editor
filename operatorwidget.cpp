@@ -132,7 +132,7 @@ void OperatorWidget::updateSingle(int param, int value)
         {
         int coarse = flags & OPA_OP_ABSOLUTE ?
             ((int8_t) value) + 128 : value;
-        ui->coarseDial->setValue(value);
+        ui->coarseDial->setValue(coarse);
         }
         break;
 
