@@ -52,6 +52,7 @@ public:
 
     void setContent(const OpaOperatorParams * params, bool send);
     void getContent(OpaOperatorParams * params);
+    void updateSingle(int param, int value);
 
     void updateUI();
 

@@ -7,6 +7,10 @@
 QT += core gui
 QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.6
 QMAKE_CFLAGS += -std=c99
+
+# QMAKE_CFLAGS_DEBUG += -E
+# QMAKE_CXXFLAGS_DEBUG += -E
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = OPAEditor

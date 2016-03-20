@@ -118,6 +118,64 @@ void OperatorWidget::getContent(OpaOperatorParams * params)
 }
 
 /*****************************************************************************/
+void OperatorWidget::updateSingle(int param, int value)
+{
+    int flags = getFlags();
+
+    switch(param) {
+
+    case OPA_OP_VOLUME:
+        ui->volumeSlide->setValue(value);
+        break;
+
+    case OPA_OP_COARSE:
+        {
+        int coarse = flags & OPA_OP_ABSOLUTE ?
+            ((int8_t) value) + 128 : value;
+        ui->coarseDial->setValue(value);
+        }
+        break;
+
+    case OPA_OP_FINE:
+        ui->fineDial->setValue(value - 128);
+        break;
+
+    case OPA_OP_ENVATTACK:
+        ui->attackDial->setValue(value);
+        break;
+
+    case OPA_OP_ENVDECAY:
+        ui->decayDial->setValue(value);
+        break;
+
+    case OPA_OP_ENVSUSTAIN_LEVEL:
+        ui->sustainDial->setValue(value);
+        break;
+
+    case OPA_OP_ENVINIT_LEVEL:
+        ui->initDial->setValue(value);
+        break;
+
+    case OPA_OP_ENVRELEASE:
+        ui->releaseDial->setValue(value);
+        break;
+
+    case OPA_OP_LFOSPEED:
+        ui->LFOSpeedDial->setValue(value);
+        break;
+
+    case OPA_OP_LFOAMOUNT:
+        ui->LFOAmountDial->setValue(value);
+        break;
+
+    case OPA_OP_FEEDBACK:
+        ui->feedbackDial->setValue(value);
+        break;
+
+    }
+}
+
+/*****************************************************************************/
 void OperatorWidget::setOperator(int index, bool feedback)
 {
     operatorIndex = index;

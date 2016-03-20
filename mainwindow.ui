@@ -847,9 +847,17 @@
     <addaction name="separator"/>
     <addaction name="memoryProtectionAction"/>
    </widget>
+   <widget class="QMenu" name="menuEditor">
+    <property name="title">
+     <string>Editor</string>
+    </property>
+    <addaction name="CCMappingAction"/>
+    <addaction name="DrumMappingAction"/>
+   </widget>
    <addaction name="fileMenu"/>
    <addaction name="connectionMenu"/>
    <addaction name="deviceMenu"/>
+   <addaction name="menuEditor"/>
    <addaction name="helpMenu"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -901,6 +909,22 @@
    </property>
    <property name="text">
     <string>Memory protection</string>
+   </property>
+  </action>
+  <action name="CCMappingAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>MIDI CC mapping</string>
+   </property>
+  </action>
+  <action name="DrumMappingAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>MIDI Drum mapping</string>
    </property>
   </action>
  </widget>

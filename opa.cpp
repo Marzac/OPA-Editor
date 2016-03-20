@@ -364,7 +364,7 @@ void Opa::globalsParamRead(int param, int * value)
     paramReturn = value;
     paramReturnIndex = param;
 // Prepare the message
-    char buffer[4];
+    char buffer[3];
     buffer[0] = OPA_GLOBALSPARAMREAD;
     buffer[1] = param;
     buffer[2] = 0;
