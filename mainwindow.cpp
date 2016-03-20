@@ -250,7 +250,7 @@ void MainWindow::on_helpMenu_triggered(QAction * action)
             "Project design: Thomas Hopper\n\n"
             "(c) Frederic Meslin / Thomas Hopper 2015-2016\n"
             "http://fredslab.net\n\n"
-            "Version 0.8 07/03/2016\n\n"
+            "Version 0.85 18/03/2016\n\n"
             "Software distributed under open-source MIT license, please refer to licence.txt for more details\n"
         );
         msgBox.setStandardButtons(QMessageBox::Ok);
@@ -311,28 +311,43 @@ void MainWindow::refreshProgramLeds()
 
 /*****************************************************************************/
 #define MIDI_DRUMS_CHANNEL  9
+
 void MainWindow::midiInCallback(uint8_t msg[])
 {
+    MainWindow * mw = MainWindow::getInstance();
+
     uint8_t s = msg[0] & 0xF0;
     uint8_t c = msg[0] & 0x0F;
     midiChannelsAct[c] = true;
 
     switch (s) {
         case 0x80:
-            if (c == MIDI_DRUMS_CHANNEL) drumMap(msg);
-            else opa.noteOff(c, msg[1], 0);
+            if (c == MIDI_DRUMS_CHANNEL) {
+                if (mw->ui->DrumMappingAction->isChecked()) drumMap(msg);
+            }else opa.noteOff(c, msg[1], 0);
             break;
         case 0x90:
-            if (c == MIDI_DRUMS_CHANNEL) drumMap(msg);
-            else{
+            if (c == MIDI_DRUMS_CHANNEL) {
+                if (mw->ui->DrumMappingAction->isChecked()) drumMap(msg);
+            }else{
                 if (msg[2]) opa.noteOn(c, msg[1], 0);
                 else opa.noteOff(c, msg[1], 0);
             }
             break;
+
         case 0xB0:
             if (msg[1] == 0x78) opa.allSoundsOff();
             else if (msg[1] == 0x7B) opa.allNotesOff(c);
+            else if (mw->ui->CCMappingAction->isChecked()) {
+                if (msg[1] >= 10 && msg[1] < 54) {
+                    int i = msg[1] - 10;
+                    int o = i % 4;
+                    int p = i / 4;
+                    editedOperators[o]->updateSingle(p, msg[2] << 1);
+                }
+            }
             break;
+
         case 0xE0:
             int16_t bend = (msg[2] << 7) + msg[1] - 0x2000;
             bend >>= midiBendRange;
