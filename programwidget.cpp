@@ -58,7 +58,7 @@ ProgramWidget::~ProgramWidget()
 /*****************************************************************************/
 void ProgramWidget::updateUI()
 {
-    if (waitforIntProgram && !opa.isWaitingProgram()) {
+    if (waitforIntProgram && !opa.isWaiting()) {
         QString name;
         programNameToQS(intProgramBuffer.params.name, name);
         ui->nameLine->setText(name);

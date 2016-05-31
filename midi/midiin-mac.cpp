@@ -75,7 +75,7 @@ const char * MidiIn::getDeviceInName(int index)
     CFStringRef displayName;
     MIDIObjectGetStringProperty(sourceRef, kMIDIPropertyDisplayName, &displayName);
     CFStringGetCString(displayName, name, 129, kCFStringEncodingUTF8);
-    name[129] = 0;
+    name[128] = 0;
     return name;
 }
 

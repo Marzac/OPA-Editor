@@ -104,6 +104,7 @@ private:
     bool needProgramRefresh;
     bool needAllProgramRefresh;
     int  allProgramCount;
+    int  connectDelay;
 
     MidiIn * midiIn;
     static void midiInCallback(uint8_t msg[]);
