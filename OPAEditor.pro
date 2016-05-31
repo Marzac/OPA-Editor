@@ -30,7 +30,9 @@ SOURCES += \
     programfile.cpp \
     programwidget.cpp \
     led.cpp \
-    envelope.cpp
+    envelope.cpp \
+    programspage.cpp \
+    mixingpage.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -42,12 +44,16 @@ HEADERS += \
     programfile.h \
     programwidget.h \
     led.h \
-    envelope.h
+    envelope.h \
+    programspage.h \
+    mixingpage.h
 
 FORMS += \
     mainwindow.ui \
     operatorwidget.ui \
-    programwidget.ui
+    programwidget.ui \
+    programspage.ui \
+    mixingpage.ui
 
 RESOURCES += \
     resources.qrc

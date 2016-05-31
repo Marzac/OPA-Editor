@@ -66,6 +66,8 @@ typedef enum{
     OPA_INTERNALWRITE          = 15,
     OPA_INTERNALREAD           = 16,
     OPA_PITCHBEND              = 17,
+    OPA_KITPARAMWRITE          = 18,
+    OPA_KITPARAMREAD           = 19,
 }OPA_MESSAGES;
 
 typedef enum{
@@ -73,11 +75,18 @@ typedef enum{
     OPA_GLOBAL_COARSE          = 1,
     OPA_GLOBAL_FINE            = 2,
     OPA_GLOBAL_FLAGS           = 3,
-    OPA_GLOBAL_RESERVED1       = 4,
-    OPA_GLOBAL_RESERVED2       = 5,
-    OPA_GLOBAL_RESERVED3       = 6,
-    OPA_GLOBAL_RESERVED4       = 7,
+    OPA_GLOBAL_FMVOLUME        = 4,
+    OPA_GLOBAL_KITVOLUME       = 5,
+    OPA_GLOBAL_RESERVED1       = 6,
+    OPA_GLOBAL_RESERVED2       = 7,
 }OPA_GLOBAL_PARAMS;
+
+typedef enum{
+    OPA_KIT_VOLUME             = 0,
+    OPA_KIT_PANNING            = 1,
+    OPA_KIT_DECAY              = 2,
+    OPA_KIT_RESERVED           = 3,
+}OPA_KIT_PARAMS;
 
 typedef enum{
     OPA_CONFIG_NAME            = 0,
@@ -107,25 +116,30 @@ typedef enum{
 }OPA_OP_PARAMS;
 
 /*****************************************************************************/
-#define OPA_ALLPROGS_ID         0xFF
+#define OPA_ALLPROGS_ID             0xFF
 
-#define OPA_ALGOS_OP_NB         4
-#define OPA_PROGS_NB            8
+#define OPA_ALGOS_OP_NB             4
+#define OPA_PROGS_NB                8
 
-#define OPA_GLOBAL_PARAMS_NB    8
-#define OPA_PROGS_PARAMS_NB     12
-#define OPA_PROGS_NAME_LEN      8
-#define OPA_PROGS_OP_PARAMS_NB  16
-#define OPA_PROGS_PARAMS_TOTAL  (OPA_PROGS_PARAMS_NB + OPA_PROGS_OP_PARAMS_NB * OPA_ALGOS_OP_NB)
+#define OPA_GLOBAL_PARAMS_NB        8
+#define OPA_PROGS_PARAMS_NB         12
+#define OPA_PROGS_NAME_LEN          8
+#define OPA_PROGS_OP_PARAMS_NB      16
+#define OPA_PROGS_PARAMS_TOTAL      (OPA_PROGS_PARAMS_NB + OPA_PROGS_OP_PARAMS_NB * OPA_ALGOS_OP_NB)
+
+#define OPA_KIT_SAMPLES_NB          24
 
 /*****************************************************************************/
 typedef enum{
     OPA_GLOBAL_PROTECT	= 1,
+    OPA_GLOBAL_MUTEFM	= 2,
+    OPA_GLOBAL_MUTEKIT	= 4,
     OPA_GLOBAL_DEFAULT  = OPA_GLOBAL_PROTECT,
 }OPA_GLOBAL_FLAGSBITS;
 
 typedef enum{
     OPA_PROGRAM_STEALING = 1,
+    OPA_PROGRAM_MUTED    = 2,
     OPA_PROGRAM_DEFAULT  = OPA_PROGRAM_STEALING,
 }OPA_PROGRAM_FLAGSBITS;
 
@@ -145,11 +159,26 @@ typedef struct{
     int8_t  coarse;
     int8_t  fine;
     uint8_t flags;
+    uint8_t fmVolume;
+    uint8_t kitVolume;
     uint8_t reserved1;
     uint8_t reserved2;
-    uint8_t reserved3;
-    uint8_t reserved4;
 }OpaGlobals;
+
+typedef struct{
+    uint8_t volume;
+    uint8_t panning;
+    uint8_t decay;
+    uint8_t reserved;
+}OpaKitParams;
+
+typedef struct{
+    uint8_t volume;
+    uint8_t flags;
+    uint8_t reserved1;
+    uint8_t reserved2;
+    OpaKitParams params[OPA_KIT_SAMPLES_NB];
+}OpaKit;
 
 typedef struct{
     uint8_t name[8];
@@ -207,6 +236,8 @@ public:
     void paramRead(int program, int param, int * value);
     void globalsParamWrite(int param, int value);
     void globalsParamRead(int param, int * value);
+    void kitParamWrite(int sample, int param, int value);
+    void kitParamRead(int sample, int param, int * value);
 
     void programWrite(int program, const OpaProgram * programData);
     void programRead(int program, OpaProgram * programData);
@@ -222,23 +253,28 @@ public:
 
     bool isWaitingProgram() {return NULL != programReturn;}
     bool isWaitingGlobals() {return NULL != globalsReturn;}
-    bool isWaitingParam() {return NULL != paramReturn;}
+    bool isWaitingParam() {return NULL != paramReturn || NULL != kitReturn;}
 
 public:
     static const OpaGlobals defaultGlobals;
     static const OpaProgramParams defaultProgramParams;
     static const OpaOperatorParams defaultOperatorParams;
+    static const char * kitSampleNames[];
     static OpaProgram defaultProgram;
     static void initDefaultProgram();
 
 private:
     void parseParameter();
+    void parseKitParameter();
     void parseProgram();
     void parseGlobals();
     void fetchSerialData();
 
     int * paramReturn;
     int paramReturnIndex;
+
+    int * kitReturn;
+    int kitReturnIndex;
 
     volatile OpaProgram * programReturn;
     volatile OpaGlobals * globalsReturn;

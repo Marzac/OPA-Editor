@@ -77,19 +77,14 @@ void ProgramWidget::setContent(const OpaProgramParams * params, bool send)
     ui->nameLine->setText(name);
     ui->volumeDial->setValue(params->volume);
     ui->panningDial->setValue(params->panning);
-
-    MainWindow * mw = MainWindow::getInstance();
-    mw->setAlgorithm(params->algorithm);
+    mainWindow->setAlgorithm(params->algorithm);
 
     opa.setEnable(true);
 
     if (send) {
-        for (int i = 0; i < 8; i++)
-            opa.paramWrite(programIndex, OPA_CONFIG_ALGO, params->name[i]);
         opa.paramWrite(programIndex, OPA_CONFIG_ALGO, params->algorithm);
         opa.paramWrite(programIndex, OPA_CONFIG_VOLUME, params->volume);
         opa.paramWrite(programIndex, OPA_CONFIG_PANNING, params->panning);
-        opa.paramWrite(programIndex, OPA_CONFIG_FLAGS, params->flags);
         for(int i = 0; i < OPA_PROGS_NAME_LEN; i++)
             opa.paramWrite(programIndex, OPA_CONFIG_NAME + i, params->name[i]);
         writeFlags();
@@ -102,9 +97,7 @@ void ProgramWidget::getContent(OpaProgramParams * params)
     programNameFromQS(ui->nameLine->text(), params->name);
     params->volume = ui->volumeDial->value();
     params->panning = ui->panningDial->value();
-
-    MainWindow * mw = MainWindow::getInstance();
-    params->algorithm = mw->getAlgorithm();
+    params->algorithm = currentAlgorithm;
 }
 
 /*****************************************************************************/
@@ -183,15 +176,13 @@ void ProgramWidget::on_loadButton_clicked()
     opa.internalLoad(programIndex, slot);
 
 // Update the UI
-    MainWindow * mw = MainWindow::getInstance();
-    mw->programRead(programIndex);
+    mainWindow->programRead(programIndex);
 }
 
 void ProgramWidget::on_storeButton_clicked()
 {
 // Check memory protection
-    MainWindow * mw = MainWindow::getInstance();
-    if (mw->getMemoryProtection()) {
+    if (mainWindow->getMemoryProtection()) {
         QMessageBox mb(QMessageBox::Information, "OPA Editor", "Internal memory is protected!\n\nMemory protection can be disabled using the device menu.", QMessageBox::Ok, this);
         mb.exec();
         return;

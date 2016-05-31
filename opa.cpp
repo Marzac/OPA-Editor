@@ -55,20 +55,20 @@ const uint16_t opaComLengths[] = {
 
 /*****************************************************************************/
 const OpaGlobals Opa::defaultGlobals = {
-    0xFF,                   // volume
+    0xD0,                   // volume
     0x00,                   // coarse
     0x00,                   // fine
     OPA_GLOBAL_DEFAULT,     // flags
+    0xFF,                   // fm volume
+    0xFF,                   // kit volume
     0x00,                   // reserved1
     0x00,                   // reserved2
-    0x00,                   // reserved3
-    0x00,                   // reserved4
 };
 
 const OpaProgramParams Opa::defaultProgramParams = {
     {'P', 'r', 'o', 'g', 'r', 'a', 'm', ' '},
     0x01,                   // algorithm
-    0xFF,                   // volume
+    0xD0,                   // volume
     0x80,                   // panning
     OPA_PROGRAM_DEFAULT,    // flags
 };
@@ -93,6 +93,18 @@ const OpaOperatorParams Opa::defaultOperatorParams = {
 };
 
 /*****************************************************************************/
+const char * Opa::kitSampleNames[] = {
+    "AnKick1", "AnKick2", "AnSnare", "AnHiHat1",
+    "AnHiHat2", "AnCrash", "AnTambourine", "AnBongoLow",
+    "AnBongoHigh", "AnWoodblock", "70Kick", "70Snare",
+    "70Rim", "70HiHatOpen", "70HiHatClose", "70Ride",
+    "70RideBell", "70Crash", "70Tom1", "70Tom2",
+    "Agogo", "Cabasa", "Claps", "Cowbell",
+    "Djembe1", "Djembe2", "Shaker", "Triangle",
+    "Udu1", "Udu2", "Vibraslap", "Motor"
+};
+
+/*****************************************************************************/
 OpaProgram Opa::defaultProgram;
 
 /*****************************************************************************/
@@ -100,6 +112,7 @@ Opa::Opa()
 {
     initDefaultProgram();
     paramReturn = NULL;
+    kitReturn = NULL;
     programReturn = NULL;
     globalsReturn = NULL;
 
@@ -137,6 +150,8 @@ void Opa::connect(int port)
     programReturnIndex = 0;
     paramReturn = NULL;
     paramReturnIndex = 0;
+    kitReturn = NULL;
+    kitReturnIndex = 0;
 
     state = OPA_CONNECTED;
 }
@@ -166,9 +181,15 @@ void Opa::update()
     if (port < 0) return;
     fetchSerialData();
 
-// Check for parameter
+// Check for a FM parameter
     if (paramReturn && rxLen >= 4) {
         parseParameter();
+        rxLen = 0;
+    }
+
+// Check for a KIT parameter
+    if (kitReturn && rxLen >= 4) {
+        parseKitParameter();
         rxLen = 0;
     }
 
@@ -209,11 +230,24 @@ void Opa::parseParameter()
     char cmdParam = rxBuffer[2];
     if (cmdIndex != OPA_PARAMWRITE) return;
     if (cmdParam != paramReturnIndex) return;
-    fprintf(stdout, "Receiving param %i\n", cmdParam);
+    fprintf(stdout, "Receiving program param %i\n", cmdParam);
     fflush(stdout);
     * paramReturn = rxBuffer[3];
     paramReturn = NULL;
     paramReturnIndex = 0;
+}
+
+void Opa::parseKitParameter()
+{
+    char cmdIndex = rxBuffer[0];
+    char cmdParam = rxBuffer[2];
+    if (cmdIndex != OPA_KITPARAMWRITE) return;
+    if (cmdParam != kitReturnIndex) return;
+    fprintf(stdout, "Receiving sample param %i\n", cmdParam);
+    fflush(stdout);
+    * kitReturn = rxBuffer[3];
+    kitReturn = NULL;
+    kitReturnIndex = 0;
 }
 
 void Opa::parseProgram()
@@ -373,6 +407,44 @@ void Opa::globalsParamRead(int param, int * value)
 }
 
 /*****************************************************************************/
+void Opa::kitParamWrite(int sample, int param, int value)
+{
+// Check for port
+    if (port < 0 || !enabled) return;
+    fprintf(stdout, "Sample %i: writing param %i, value: %i\n", sample, param, value);
+    fflush(stdout);
+// Prepare the message
+    char buffer[4];
+    buffer[0] = OPA_KITPARAMWRITE;
+    buffer[1] = sample;
+    buffer[2] = param;
+    buffer[3] = value;
+// Send the message
+    comWrite(port, buffer, 4);
+}
+
+void Opa::kitParamRead(int sample, int param, int * value)
+{
+// Check for port
+    if (port < 0 || !enabled) return;
+    fprintf(stdout, "Sample %i: reading param %i\n", sample, param);
+    fflush(stdout);
+// Store the pointer
+    if (paramReturn || kitReturn || programReturn || globalsReturn) return;
+    kitReturn = value;
+    kitReturnIndex = param;
+// Prepare the message
+    char buffer[4];
+    buffer[0] = OPA_KITPARAMREAD;
+    buffer[1] = sample;
+    buffer[2] = param;
+    buffer[3] = 0;
+// Send the message
+    comWrite(port, buffer, 4);
+}
+
+
+/*****************************************************************************/
 void Opa::programWrite(int program, const OpaProgram * programData)
 {
 // Check for port
@@ -397,7 +469,7 @@ void Opa::programRead(int program, OpaProgram * programData)
     fprintf(stdout, "Program read %i\n", program);
     fflush(stdout);
 // Store the pointer
-    if (paramReturn || programReturn || globalsReturn) return;
+    if (paramReturn || kitReturn || programReturn || globalsReturn) return;
     programReturn = programData;
     programReturnIndex = program;
 // Prepare the message
@@ -434,7 +506,7 @@ void Opa::globalsRead(OpaGlobals * globalsData)
     fprintf(stdout, "Global read\n");
     fflush(stdout);
 // Store the pointer
-    if (paramReturn || programReturn || globalsReturn) return;
+    if (paramReturn || kitReturn || programReturn || globalsReturn) return;
     globalsReturn = globalsData;
 // Prepare the message
     char buffer[3];
@@ -501,7 +573,7 @@ void Opa::internalRead(int slot, OpaProgram * programData)
     fprintf(stdout, "Internal read %i\n", slot);
     fflush(stdout);
 // Store the pointer
-    if (paramReturn || programReturn || globalsReturn) return;
+    if (paramReturn || kitReturn || programReturn || globalsReturn) return;
     programReturn = programData;
     programReturnIndex = slot;
 // Prepare the message

@@ -32,12 +32,19 @@
 #include "globals.h"
 
 /*****************************************************************************/
+// Global objects and shortcuts
 Opa opa;
-
+MainWindow * mainWindow;
 OperatorWidget * editedOperators[4];
 ProgramWidget * editedProgram;
 int currentProgram;
 int currentAlgorithm;
+
+/*****************************************************************************/
+// MIDI relatad informations
+int midiBendRange;
+bool midiChannelsAct[16];
+bool midiSamplesAct[32];
 
 /*****************************************************************************/
 void programNameFromQS(const QString &qsName, uint8_t opaName[])

@@ -7,805 +7,75 @@
     <x>0</x>
     <y>0</y>
     <width>1020</width>
-    <height>720</height>
+    <height>750</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>1020</width>
-    <height>720</height>
+    <height>750</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>1020</width>
-    <height>720</height>
+    <height>750</height>
    </size>
   </property>
   <property name="windowTitle">
    <string>OPA Soundchip editor - beta</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QGroupBox" name="op1Box">
+   <widget class="QPushButton" name="programsPagePush">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>421</width>
-      <height>281</height>
+      <width>78</width>
+      <height>24</height>
      </rect>
     </property>
-    <property name="title">
-     <string>Operator 1</string>
+    <property name="text">
+     <string>Operators</string>
     </property>
-    <widget class="OperatorWidget" name="op1Widget" native="true">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>16</y>
-       <width>420</width>
-       <height>260</height>
-      </rect>
-     </property>
-    </widget>
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
    </widget>
-   <widget class="QGroupBox" name="op2Box">
+   <widget class="QPushButton" name="mixingPagePush">
     <property name="geometry">
      <rect>
-      <x>440</x>
+      <x>100</x>
       <y>10</y>
-      <width>421</width>
-      <height>281</height>
+      <width>78</width>
+      <height>24</height>
      </rect>
     </property>
-    <property name="title">
-     <string>Operator 2</string>
+    <property name="text">
+     <string>Mixing</string>
     </property>
-    <widget class="OperatorWidget" name="op2Widget" native="true">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>16</y>
-       <width>420</width>
-       <height>260</height>
-      </rect>
-     </property>
-    </widget>
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
    </widget>
-   <widget class="QGroupBox" name="op3Box">
+   <widget class="ProgramsPage" name="pagePrograms" native="true">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>310</y>
-      <width>421</width>
-      <height>281</height>
+      <y>40</y>
+      <width>1000</width>
+      <height>660</height>
      </rect>
     </property>
-    <property name="title">
-     <string>Operator 3</string>
-    </property>
-    <widget class="OperatorWidget" name="op3Widget" native="true">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>16</y>
-       <width>420</width>
-       <height>260</height>
-      </rect>
-     </property>
-    </widget>
    </widget>
-   <widget class="QGroupBox" name="op4Box">
-    <property name="geometry">
-     <rect>
-      <x>440</x>
-      <y>310</y>
-      <width>421</width>
-      <height>281</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>Operator 4</string>
-    </property>
-    <widget class="OperatorWidget" name="op4Widget" native="true">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>20</y>
-       <width>420</width>
-       <height>260</height>
-      </rect>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QGroupBox" name="programBox">
-    <property name="geometry">
-     <rect>
-      <x>870</x>
-      <y>10</y>
-      <width>141</width>
-      <height>461</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>Program</string>
-    </property>
-    <widget class="QPushButton" name="i1Push">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>40</y>
-       <width>31</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>1</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="i2Push">
-     <property name="geometry">
-      <rect>
-       <x>40</x>
-       <y>40</y>
-       <width>31</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>2</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="i3Push">
-     <property name="geometry">
-      <rect>
-       <x>70</x>
-       <y>40</y>
-       <width>31</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>3</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="i4Push">
-     <property name="geometry">
-      <rect>
-       <x>100</x>
-       <y>40</y>
-       <width>31</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>4</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="i6Push">
-     <property name="geometry">
-      <rect>
-       <x>40</x>
-       <y>100</y>
-       <width>31</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>6</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="i7Push">
-     <property name="geometry">
-      <rect>
-       <x>70</x>
-       <y>100</y>
-       <width>31</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>7</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="i8Push">
-     <property name="geometry">
-      <rect>
-       <x>100</x>
-       <y>100</y>
-       <width>31</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>8</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="i5Push">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>100</y>
-       <width>31</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>5</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-    </widget>
-    <widget class="ProgramWidget" name="programWidget" native="true">
-     <property name="geometry">
-      <rect>
-       <x>-1</x>
-       <y>140</y>
-       <width>141</width>
-       <height>320</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="Led" name="i1Led" native="true">
-     <property name="geometry">
-      <rect>
-       <x>18</x>
-       <y>20</y>
-       <width>16</width>
-       <height>16</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="Led" name="i2Led" native="true">
-     <property name="geometry">
-      <rect>
-       <x>48</x>
-       <y>20</y>
-       <width>16</width>
-       <height>16</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="Led" name="i3Led" native="true">
-     <property name="geometry">
-      <rect>
-       <x>78</x>
-       <y>20</y>
-       <width>16</width>
-       <height>16</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="Led" name="i4Led" native="true">
-     <property name="geometry">
-      <rect>
-       <x>108</x>
-       <y>20</y>
-       <width>16</width>
-       <height>16</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="Led" name="i5Led" native="true">
-     <property name="geometry">
-      <rect>
-       <x>18</x>
-       <y>80</y>
-       <width>16</width>
-       <height>16</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="Led" name="i6Led" native="true">
-     <property name="geometry">
-      <rect>
-       <x>48</x>
-       <y>80</y>
-       <width>16</width>
-       <height>16</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="Led" name="i7Led" native="true">
-     <property name="geometry">
-      <rect>
-       <x>78</x>
-       <y>80</y>
-       <width>16</width>
-       <height>16</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="Led" name="i8Led" native="true">
-     <property name="geometry">
-      <rect>
-       <x>108</x>
-       <y>80</y>
-       <width>16</width>
-       <height>16</height>
-      </rect>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QGroupBox" name="groupBox">
-    <property name="geometry">
-     <rect>
-      <x>870</x>
-      <y>480</y>
-      <width>141</width>
-      <height>111</height>
-     </rect>
-    </property>
-    <property name="title">
-     <string>Global</string>
-    </property>
-    <widget class="QLabel" name="masterTuneLabel">
-     <property name="geometry">
-      <rect>
-       <x>70</x>
-       <y>10</y>
-       <width>71</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Tune</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-    <widget class="QDial" name="masterTuneDial">
-     <property name="geometry">
-      <rect>
-       <x>80</x>
-       <y>30</y>
-       <width>49</width>
-       <height>49</height>
-      </rect>
-     </property>
-     <property name="minimum">
-      <number>-128</number>
-     </property>
-     <property name="maximum">
-      <number>127</number>
-     </property>
-     <property name="notchTarget">
-      <double>16.000000000000000</double>
-     </property>
-     <property name="notchesVisible">
-      <bool>true</bool>
-     </property>
-    </widget>
-    <widget class="QLabel" name="masterTuneEditLabel">
-     <property name="geometry">
-      <rect>
-       <x>80</x>
-       <y>80</y>
-       <width>51</width>
-       <height>17</height>
-      </rect>
-     </property>
-     <property name="autoFillBackground">
-      <bool>false</bool>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::Box</enum>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-     <property name="textInteractionFlags">
-      <set>Qt::TextEditorInteraction</set>
-     </property>
-    </widget>
-    <widget class="QLabel" name="masterVolumeLabel">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>10</y>
-       <width>71</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Volume</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-    <widget class="QDial" name="masterVolumeDial">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>30</y>
-       <width>49</width>
-       <height>49</height>
-      </rect>
-     </property>
-     <property name="maximum">
-      <number>255</number>
-     </property>
-     <property name="notchTarget">
-      <double>16.000000000000000</double>
-     </property>
-     <property name="notchesVisible">
-      <bool>true</bool>
-     </property>
-    </widget>
-    <widget class="QLabel" name="masterVolumeEditLabel">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>80</y>
-       <width>51</width>
-       <height>17</height>
-      </rect>
-     </property>
-     <property name="autoFillBackground">
-      <bool>false</bool>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::Box</enum>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-     <property name="textInteractionFlags">
-      <set>Qt::TextEditorInteraction</set>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QPushButton" name="algo1Push">
+   <widget class="MixingPage" name="pageMixing" native="true">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>600</y>
-      <width>71</width>
-      <height>71</height>
+      <y>40</y>
+      <width>1000</width>
+      <height>660</height>
      </rect>
-    </property>
-    <property name="icon">
-     <iconset resource="resources.qrc">
-      <normaloff>:/images/res/program-a.png</normaloff>:/images/res/program-a.png</iconset>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>64</width>
-      <height>64</height>
-     </size>
-    </property>
-    <property name="checkable">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="algo2Push">
-    <property name="geometry">
-     <rect>
-      <x>85</x>
-      <y>600</y>
-      <width>71</width>
-      <height>71</height>
-     </rect>
-    </property>
-    <property name="icon">
-     <iconset resource="resources.qrc">
-      <normaloff>:/images/res/program-b.png</normaloff>:/images/res/program-b.png</iconset>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>64</width>
-      <height>64</height>
-     </size>
-    </property>
-    <property name="checkable">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="algo3Push">
-    <property name="geometry">
-     <rect>
-      <x>160</x>
-      <y>600</y>
-      <width>71</width>
-      <height>71</height>
-     </rect>
-    </property>
-    <property name="icon">
-     <iconset resource="resources.qrc">
-      <normaloff>:/images/res/program-c.png</normaloff>:/images/res/program-c.png</iconset>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>64</width>
-      <height>64</height>
-     </size>
-    </property>
-    <property name="checkable">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="algo4Push">
-    <property name="geometry">
-     <rect>
-      <x>235</x>
-      <y>600</y>
-      <width>71</width>
-      <height>71</height>
-     </rect>
-    </property>
-    <property name="icon">
-     <iconset resource="resources.qrc">
-      <normaloff>:/images/res/program-d.png</normaloff>:/images/res/program-d.png</iconset>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>64</width>
-      <height>64</height>
-     </size>
-    </property>
-    <property name="checkable">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="algo5Push">
-    <property name="geometry">
-     <rect>
-      <x>310</x>
-      <y>600</y>
-      <width>71</width>
-      <height>71</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="icon">
-     <iconset resource="resources.qrc">
-      <normaloff>:/images/res/program-e.png</normaloff>:/images/res/program-e.png</iconset>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>64</width>
-      <height>64</height>
-     </size>
-    </property>
-    <property name="checkable">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="algo6Push">
-    <property name="geometry">
-     <rect>
-      <x>385</x>
-      <y>600</y>
-      <width>71</width>
-      <height>71</height>
-     </rect>
-    </property>
-    <property name="icon">
-     <iconset resource="resources.qrc">
-      <normaloff>:/images/res/program-f.png</normaloff>:/images/res/program-f.png</iconset>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>64</width>
-      <height>64</height>
-     </size>
-    </property>
-    <property name="checkable">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="algo7Push">
-    <property name="geometry">
-     <rect>
-      <x>460</x>
-      <y>600</y>
-      <width>71</width>
-      <height>71</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="icon">
-     <iconset resource="resources.qrc">
-      <normaloff>:/images/res/program-g.png</normaloff>:/images/res/program-g.png</iconset>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>64</width>
-      <height>64</height>
-     </size>
-    </property>
-    <property name="checkable">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="algo8Push">
-    <property name="geometry">
-     <rect>
-      <x>535</x>
-      <y>600</y>
-      <width>71</width>
-      <height>71</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="icon">
-     <iconset resource="resources.qrc">
-      <normaloff>:/images/res/program-h.png</normaloff>:/images/res/program-h.png</iconset>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>64</width>
-      <height>64</height>
-     </size>
-    </property>
-    <property name="checkable">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="algo11Push">
-    <property name="geometry">
-     <rect>
-      <x>760</x>
-      <y>600</y>
-      <width>71</width>
-      <height>71</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="icon">
-     <iconset resource="resources.qrc">
-      <normaloff>:/images/res/program-k.png</normaloff>:/images/res/program-k.png</iconset>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>64</width>
-      <height>64</height>
-     </size>
-    </property>
-    <property name="checkable">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="algo12Push">
-    <property name="geometry">
-     <rect>
-      <x>835</x>
-      <y>600</y>
-      <width>71</width>
-      <height>71</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="icon">
-     <iconset resource="resources.qrc">
-      <normaloff>:/images/res/program-l.png</normaloff>:/images/res/program-l.png</iconset>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>64</width>
-      <height>64</height>
-     </size>
-    </property>
-    <property name="checkable">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="algo10Push">
-    <property name="geometry">
-     <rect>
-      <x>685</x>
-      <y>600</y>
-      <width>71</width>
-      <height>71</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="icon">
-     <iconset resource="resources.qrc">
-      <normaloff>:/images/res/program-j.png</normaloff>:/images/res/program-j.png</iconset>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>64</width>
-      <height>64</height>
-     </size>
-    </property>
-    <property name="checkable">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="algo9Push">
-    <property name="geometry">
-     <rect>
-      <x>610</x>
-      <y>600</y>
-      <width>71</width>
-      <height>71</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="icon">
-     <iconset resource="resources.qrc">
-      <normaloff>:/images/res/program-i.png</normaloff>:/images/res/program-i.png</iconset>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>64</width>
-      <height>64</height>
-     </size>
-    </property>
-    <property name="checkable">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="algo13Push">
-    <property name="geometry">
-     <rect>
-      <x>910</x>
-      <y>600</y>
-      <width>71</width>
-      <height>71</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="icon">
-     <iconset resource="resources.qrc">
-      <normaloff>:/images/res/program-m.png</normaloff>:/images/res/program-m.png</iconset>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>64</width>
-      <height>64</height>
-     </size>
-    </property>
-    <property name="checkable">
-     <bool>true</bool>
     </property>
    </widget>
   </widget>
@@ -852,7 +122,7 @@
      <string>Editor</string>
     </property>
     <addaction name="CCMappingAction"/>
-    <addaction name="DrumMappingAction"/>
+    <addaction name="ProgMappingAction"/>
    </widget>
    <addaction name="fileMenu"/>
    <addaction name="connectionMenu"/>
@@ -919,38 +189,30 @@
     <string>MIDI CC mapping</string>
    </property>
   </action>
-  <action name="DrumMappingAction">
+  <action name="ProgMappingAction">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>MIDI Drum mapping</string>
+    <string>MIDI Program mapping</string>
    </property>
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>OperatorWidget</class>
+   <class>ProgramsPage</class>
    <extends>QWidget</extends>
-   <header>operatorwidget.h</header>
+   <header>programspage.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>ProgramWidget</class>
+   <class>MixingPage</class>
    <extends>QWidget</extends>
-   <header>programwidget.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>Led</class>
-   <extends>QWidget</extends>
-   <header>led.h</header>
+   <header>mixingpage.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="resources.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

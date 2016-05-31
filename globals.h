@@ -36,14 +36,23 @@
 #include "opa.h"
 #include "operatorwidget.h"
 #include "programwidget.h"
+#include "mainwindow.h"
 
 #include <QString>
 #include <sys/time.h>
 
 /*****************************************************************************/
 extern Opa opa;
+extern MainWindow * mainWindow;
 extern OperatorWidget * editedOperators[4];
 extern ProgramWidget * editedProgram;
+
+extern int midiBendRange;
+extern bool midiChannelsAct[16];
+extern bool midiSamplesAct[32];
+
+extern int currentProgram;
+extern int currentAlgorithm;
 
 /*****************************************************************************/
 #define cmin(a, b) ((a) < (b) ? (a) : (b))

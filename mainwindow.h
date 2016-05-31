@@ -37,10 +37,8 @@
 #include <QLabel>
 #include <QTimer>
 
-#include "operatorwidget.h"
-#include "programwidget.h"
 #include "midi/midiin.h"
-#include "led.h"
+#include "opa.h"
 
 namespace Ui {
 class MainWindow;
@@ -64,11 +62,11 @@ public:
     void paramBulkRead(int program, int firstParam, uint8_t * paramBuffer, int noParams);
 
     void refresh();
-    static MainWindow * getInstance();
 
-    void setProgram(int i);
-    void setAlgorithm(int a);
-    int getAlgorithm() {return algorithm;}
+    void setProgram(int program);
+    void setAlgorithm(int algorithm);
+    void setPage(int page);
+
     bool getMemoryProtection();
 
 private slots:
@@ -80,48 +78,21 @@ private slots:
     void on_deviceMenu_triggered(QAction * action);
     void on_connectionMenu_triggered(QAction * action);
 
-    void on_i1Push_clicked();
-    void on_i2Push_clicked();
-    void on_i3Push_clicked();
-    void on_i4Push_clicked();
-    void on_i5Push_clicked();
-    void on_i6Push_clicked();
-    void on_i7Push_clicked();
-    void on_i8Push_clicked();
+    void on_programsPagePush_clicked();
 
-    void on_algo1Push_clicked();
-    void on_algo2Push_clicked();
-    void on_algo3Push_clicked();
-    void on_algo4Push_clicked();
-    void on_algo5Push_clicked();
-    void on_algo6Push_clicked();
-    void on_algo7Push_clicked();
-    void on_algo8Push_clicked();
-    void on_algo9Push_clicked();
-    void on_algo10Push_clicked();
-    void on_algo11Push_clicked();
-    void on_algo12Push_clicked();
-    void on_algo13Push_clicked();
-
-    void on_masterTuneDial_valueChanged(int value);
-    void on_masterVolumeDial_valueChanged(int value);
+    void on_mixingPagePush_clicked();
 
 private:
     void writeFlags();
     void setFlags(int flags);
 
-    void refreshProgramLeds();
-
-private:
+public:
     Ui::MainWindow *ui;
 
+private:
     QTimer * comTimer;
     QTimer * UITimer;
     QLabel * statusLabel;
-
-    Led * programLeds[8];
-    int programIndex;
-    int algorithm;
 
     OpaProgram programBuffer;
     OpaGlobals globalsBuffer;
@@ -131,15 +102,13 @@ private:
 
     bool needGlobalsRefresh;
     bool needProgramRefresh;
+    bool needAllProgramRefresh;
+    int  allProgramCount;
 
     MidiIn * midiIn;
     static void midiInCallback(uint8_t msg[]);
-    static void drumMap(uint8_t msg[]);
+    static void progMap(uint8_t msg[]);
 
-    static int midiBendRange;
-    static bool midiChannelsAct[16];
-
-    static MainWindow * instance;
 };
 
 #endif // MAINWINDOW_H
