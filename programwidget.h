@@ -67,6 +67,7 @@ private slots:
     void on_nameLine_editingFinished();
     void on_slotSpin_valueChanged(int value);
     void on_stealingButton_clicked();
+    void on_muteButton_clicked();
 
 private:
     int programIndex;

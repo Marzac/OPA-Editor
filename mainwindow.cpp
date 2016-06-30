@@ -31,6 +31,8 @@
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "ui_mixingpage.h"
+#include "ui_programspage.h"
 
 #include <QMessageBox>
 #include <QFileDialog>
@@ -50,12 +52,18 @@ MainWindow::MainWindow(QWidget *parent) :
     memset(&programBuffer, 0, sizeof(OpaProgram));
     memset(&globalsBuffer, 0, sizeof(OpaGlobals));
 
+    needKitRefresh = false;
     needGlobalsRefresh = false;
     needProgramRefresh = false;
-    needAllProgramRefresh = false;
+    needKitRefresh = false;
+    needAllRefresh = false;
+
     waitforGlobals = false;
     waitforProgram = false;
-    waitforParam = false;
+    waitforKit = false;
+
+    programWaited = 0;
+    allProgramCount = 0;
     connectDelay = 0;
 
     setProgram(0);
@@ -160,6 +168,7 @@ void MainWindow::on_connectionMenu_triggered(QAction * action)
     int actionsNb = actionsList.count();
 
 // Connect an Arduino board
+    int port;
     int entry = getMenuEntry(action);
     switch(entry) {
 
@@ -169,16 +178,8 @@ void MainWindow::on_connectionMenu_triggered(QAction * action)
 
         case MENU_ENTRY_ARDUINO:
         // Setup communication
-            opa.connect(getMenuIndex(action));
-            waitforProgram = false;
-            waitforParam = false;
-            waitforGlobals = false;
-            connectDelay = 3000;
-
-            needGlobalsRefresh = false;
-            needProgramRefresh = false;
-            allProgramCount = -1;
-            needAllProgramRefresh = true;
+            port = getMenuIndex(action);
+            arduinoConnect(port);
 
         // Mark the menu
             for (int j = 0; j < actionsNb; j++)
@@ -221,19 +222,48 @@ void MainWindow::on_deviceMenu_triggered(QAction * action)
 
 
 /*****************************************************************************/
+void MainWindow::arduinoConnect(int port)
+{
+    needGlobalsRefresh = false;
+    needProgramRefresh = false;
+    needKitRefresh = false;
+
+    waitforProgram = false;
+    waitforKit = false;
+    waitforGlobals = false;
+
+    programWaited = 0;
+    allProgramCount = 0;
+
+    needAllRefresh = true;
+
+#ifndef _WIN32
+    connectDelay = 3000;
+#else
+    connectDelay = 100;
+#endif
+
+    opa.connect(port);
+}
+
+/*****************************************************************************/
 void MainWindow::on_helpMenu_triggered(QAction * action)
 {
     if (action == ui->aboutAction) {
         QMessageBox msgBox;
-        msgBox.setText("OPA - Soundchip editor");
-        msgBox.setInformativeText(
-            "Software & hardware developpment: Frederic Meslin\n"
-            "Project design: Thomas Hopper\n\n"
-            "(c) Frederic Meslin / Thomas Hopper 2015-2016\n"
-            "http://fredslab.net\n\n"
-            "Version 0.85 18/03/2016\n\n"
-            "Software distributed under open-source MIT license, please refer to licence.txt for more details\n"
+        msgBox.setText(
+            "OPA - Soundchip editor<br><br>"
+            "Software & hardware: Frederic Meslin<br>"
+            "Project design: Thomas Hopper<br>"
+            "Drums & Percussions: Loopmasters<br>"
+            "<a href='http://www.loopmasters.com'>http://www.loopmasters.com</a><br><br>"
+            "(c) Frederic Meslin / Thomas Hopper 2015-2016<br>"
+            "<a href='http://fredslab.net'>http://fredslab.net</a><br><br>"
+            "Version 1.01 30/06/2016<br><br>"
+            "Software distributed under open-source MIT license, please refer to licence.txt for more details"
         );
+        msgBox.setTextFormat(Qt::RichText);
+        msgBox.setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
         msgBox.setStandardButtons(QMessageBox::Ok);
         msgBox.exec();
     }
@@ -248,6 +278,7 @@ void MainWindow::comTimer_timeout()
 void MainWindow::UITimer_timeout()
 {
     if (connectDelay > 0) {
+    // Wait for reboot
         connectDelay -= 20;
     }else if (waitforGlobals && !opa.isWaiting()) {
     // Update UI globals
@@ -256,29 +287,35 @@ void MainWindow::UITimer_timeout()
         waitforGlobals = false;
     }else if (waitforProgram && !opa.isWaiting()) {
     // Update UI program
-        if (allProgramCount == currentProgram) {
+        if (currentProgram == programWaited) {
             editedProgram->setContent(&programBuffer.params, false);
             for (int o = 0; o < OPA_ALGOS_OP_NB; o++)
                 editedOperators[o]->setContent(&programBuffer.opParams[o], false);
         }
-        ui->pageMixing->setContent(allProgramCount, &programBuffer.params, false);
+        ui->pageMixing->setContent(programWaited, &programBuffer.params, false);
         waitforProgram = false;
-    }else if (waitforParam && !opa.isWaiting()) {
-        waitforParam = false;
+    }else if (waitforKit && !opa.isWaiting()) {
+    // Update UI program
+        ui->pageMixing->setKitContent(&kitBuffer, false);
+        waitforKit = false;
     }else if (needGlobalsRefresh) {
         globalRead();
         needGlobalsRefresh = false;
     }else if (needProgramRefresh) {
-        allProgramCount = currentProgram;
         programRead(currentProgram);
         needProgramRefresh = false;
-    }else if (needAllProgramRefresh) {
-        programRead(++allProgramCount);
-        if (allProgramCount == OPA_PROGS_NB - 1)
-            needAllProgramRefresh = false;
+    }else if (needKitRefresh) {
+        kitRead();
+        needKitRefresh = false;
+    }else if (needAllRefresh) {
+        if (allProgramCount == OPA_PROGS_NB){
+            needAllRefresh = false;
             needGlobalsRefresh = true;
+            needKitRefresh = true;
+        }else{
+            programRead(allProgramCount++);
+        }
     }
-
 
     editedProgram->updateUI();
     for (int o = 0; o < 4; o++)
@@ -287,6 +324,7 @@ void MainWindow::UITimer_timeout()
     ui->pagePrograms->refreshProgramLeds();
     ui->pageMixing->refreshMixingLeds();
     ui->pageMixing->refreshSampleLeds();
+
     for (int i = 0; i < 16; i++)
         midiChannelsAct[i] = 0;
     for (int i = 0; i < 32; i++)
@@ -370,26 +408,24 @@ void MainWindow::programRead(int program)
     if (opa.isWaiting()) return;
     memset(&programBuffer, 0, sizeof(OpaProgram));
     opa.programRead(program, &programBuffer);
+    programWaited = program;
     waitforProgram = true;
 }
 
-
-void MainWindow::programWrite(int program)
+void MainWindow::kitRead()
 {
+    if (opa.isWaiting()) return;
+    memset(&kitBuffer, 0, sizeof(OpaKit));
+    opa.kitRead(&kitBuffer);
+    waitforKit = true;
 }
 
-/*****************************************************************************/
 void MainWindow::globalRead()
 {
     if (opa.isWaiting()) return;
     memset(&globalsBuffer, 0, sizeof(OpaGlobals));
     opa.globalsRead(&globalsBuffer);
     waitforGlobals = true;
-}
-
-void MainWindow::globalWrite()
-{
-
 }
 
 /*****************************************************************************/
@@ -412,12 +448,11 @@ void MainWindow::setAlgorithm(int algorithm)
 
 void MainWindow::setPage(int page)
 {
-    allProgramCount = -1;
-    needAllProgramRefresh = true;
+    allProgramCount = 0;
+    needAllRefresh = true;
 
     ui->pagePrograms->setVisible(0 == page);
     ui->pageMixing->setVisible(1 == page);
-
     ui->programsPagePush->setChecked(0 == page);
     ui->mixingPagePush->setChecked(1 == page);
 }
@@ -425,21 +460,18 @@ void MainWindow::setPage(int page)
 /*****************************************************************************/
 void MainWindow::writeFlags()
 {
-//TODO: chek that
     int flags = 0;
     flags |= ui->memoryProtectionAction->isChecked() ? OPA_GLOBAL_PROTECT : 0;
+    flags |= ui->pageMixing->ui->mixerMuteFMPush->isChecked() ? OPA_GLOBAL_MUTEFM : 0;
+    flags |= ui->pageMixing->ui->mixerMuteKitPush->isChecked() ? OPA_GLOBAL_MUTEKIT : 0;
     opa.globalsParamWrite(OPA_GLOBAL_FLAGS, flags);
 }
 
 void MainWindow::setFlags(int flags)
 {
     ui->memoryProtectionAction->setChecked(flags & OPA_GLOBAL_PROTECT);
-}
-
-/*****************************************************************************/
-bool MainWindow::getMemoryProtection()
-{
-    return ui->memoryProtectionAction->isChecked();
+    ui->pageMixing->ui->mixerMuteFMPush->setChecked(flags & OPA_GLOBAL_MUTEFM);
+    ui->pageMixing->ui->mixerMuteKitPush->setChecked(flags & OPA_GLOBAL_MUTEKIT);
 }
 
 /*****************************************************************************/

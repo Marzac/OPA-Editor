@@ -53,13 +53,11 @@ public:
     ~MainWindow();
 
     void devicesEnumerate();
+    void arduinoConnect(int port);
 
     void programRead(int program);
-    void programWrite(int program);
+    void kitRead();
     void globalRead();
-    void globalWrite();
-
-    void paramBulkRead(int program, int firstParam, uint8_t * paramBuffer, int noParams);
 
     void refresh();
 
@@ -67,7 +65,8 @@ public:
     void setAlgorithm(int algorithm);
     void setPage(int page);
 
-    bool getMemoryProtection();
+    void writeFlags();
+    void setFlags(int flags);
 
 private slots:
     void comTimer_timeout();
@@ -79,15 +78,7 @@ private slots:
     void on_connectionMenu_triggered(QAction * action);
 
     void on_programsPagePush_clicked();
-
     void on_mixingPagePush_clicked();
-
-private:
-    void writeFlags();
-    void setFlags(int flags);
-
-public:
-    Ui::MainWindow *ui;
 
 private:
     QTimer * comTimer;
@@ -96,13 +87,15 @@ private:
 
     OpaProgram programBuffer;
     OpaGlobals globalsBuffer;
+    OpaKit kitBuffer;
+
     bool waitforGlobals;
     bool waitforProgram;
+    bool waitforKit;
     bool waitforParam;
 
-    bool needGlobalsRefresh;
-    bool needProgramRefresh;
-    bool needAllProgramRefresh;
+    int  programWaited;
+
     int  allProgramCount;
     int  connectDelay;
 
@@ -110,6 +103,12 @@ private:
     static void midiInCallback(uint8_t msg[]);
     static void progMap(uint8_t msg[]);
 
+public:
+    bool needGlobalsRefresh;
+    bool needProgramRefresh;
+    bool needKitRefresh;
+    bool needAllRefresh;
+    Ui::MainWindow *ui;
 };
 
 #endif // MAINWINDOW_H

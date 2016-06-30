@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>140</width>
-    <height>320</height>
+    <height>384</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -36,7 +36,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>185</y>
+     <y>255</y>
      <width>121</width>
      <height>24</height>
     </rect>
@@ -84,7 +84,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>115</y>
+     <y>155</y>
      <width>121</width>
      <height>24</height>
     </rect>
@@ -113,7 +113,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>160</y>
+     <y>230</y>
      <width>121</width>
      <height>24</height>
     </rect>
@@ -126,7 +126,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>255</y>
+     <y>350</y>
      <width>121</width>
      <height>24</height>
     </rect>
@@ -139,7 +139,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>230</y>
+     <y>325</y>
      <width>121</width>
      <height>24</height>
     </rect>
@@ -152,7 +152,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>290</y>
+     <y>300</y>
      <width>41</width>
      <height>22</height>
     </rect>
@@ -171,7 +171,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>140</y>
+     <y>210</y>
      <width>121</width>
      <height>20</height>
     </rect>
@@ -184,7 +184,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>210</y>
+     <y>280</y>
      <width>121</width>
      <height>20</height>
     </rect>
@@ -197,7 +197,7 @@
    <property name="geometry">
     <rect>
      <x>60</x>
-     <y>290</y>
+     <y>300</y>
      <width>71</width>
      <height>20</height>
     </rect>
@@ -222,7 +222,36 @@
     </rect>
    </property>
    <property name="text">
-    <string>Voice stealing</string>
+    <string>Stealing</string>
+   </property>
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLabel" name="programLabel">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>135</y>
+     <width>121</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Program:</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="muteButton">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>106</y>
+     <width>121</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Mute</string>
    </property>
    <property name="checkable">
     <bool>true</bool>
@@ -242,6 +271,8 @@
   <zorder>nameLine</zorder>
   <zorder>stealingButton</zorder>
   <zorder>storeButton</zorder>
+  <zorder>programLabel</zorder>
+  <zorder>muteButton</zorder>
  </widget>
  <resources/>
  <connections/>

@@ -33,6 +33,31 @@ MixingPage::MixingPage(QWidget *parent) :
     kitLeds[6] = (Led *) ui->sample7Led;
     kitLeds[7] = (Led *) ui->sample8Led;
 
+    kitVolumeDials[0] = ui->kitVolume1Dial;
+    kitVolumeDials[1] = ui->kitVolume2Dial;
+    kitVolumeDials[2] = ui->kitVolume3Dial;
+    kitVolumeDials[3] = ui->kitVolume4Dial;
+    kitVolumeDials[4] = ui->kitVolume5Dial;
+    kitVolumeDials[5] = ui->kitVolume6Dial;
+    kitVolumeDials[6] = ui->kitVolume7Dial;
+    kitVolumeDials[7] = ui->kitVolume8Dial;
+    kitPanningDials[0] = ui->kitPan1Dial;
+    kitPanningDials[1] = ui->kitPan2Dial;
+    kitPanningDials[2] = ui->kitPan3Dial;
+    kitPanningDials[3] = ui->kitPan4Dial;
+    kitPanningDials[4] = ui->kitPan5Dial;
+    kitPanningDials[5] = ui->kitPan6Dial;
+    kitPanningDials[6] = ui->kitPan7Dial;
+    kitPanningDials[7] = ui->kitPan8Dial;
+    kitDecayDials[0] = ui->kitDecay1Dial;
+    kitDecayDials[1] = ui->kitDecay2Dial;
+    kitDecayDials[2] = ui->kitDecay3Dial;
+    kitDecayDials[3] = ui->kitDecay4Dial;
+    kitDecayDials[4] = ui->kitDecay5Dial;
+    kitDecayDials[5] = ui->kitDecay6Dial;
+    kitDecayDials[6] = ui->kitDecay7Dial;
+    kitDecayDials[7] = ui->kitDecay8Dial;
+
     on_mixerVolume1Slide_valueChanged(0);
     on_mixerVolume2Slide_valueChanged(0);
     on_mixerVolume3Slide_valueChanged(0);
@@ -44,7 +69,10 @@ MixingPage::MixingPage(QWidget *parent) :
 
     on_mixerVolumeFMSlide_valueChanged(0);
     on_mixerVolumeKitSlide_valueChanged(0);
-    on_mixerVolumeMasterSlide_valueChanged(0);
+
+    on_masterCoarseDial_valueChanged(0);
+    on_masterFineDial_valueChanged(0);
+    on_masterVolumeDial_valueChanged(0);
 
     setSampleSet(0);
 }
@@ -104,6 +132,8 @@ void MixingPage::setSampleSet(int set)
     ui->kitSample6Label->setText(Opa::kitSampleNames[k+5]);
     ui->kitSample7Label->setText(Opa::kitSampleNames[k+6]);
     ui->kitSample8Label->setText(Opa::kitSampleNames[k+7]);
+
+    mainWindow->needKitRefresh = true;
 }
 
 /*****************************************************************************/
@@ -159,40 +189,68 @@ void MixingPage::setContent(int program, const OpaProgramParams * params,  bool 
         ui->mixerMute8Push->setChecked(params->flags & OPA_PROGRAM_MUTED);
         ui->mixerSteal8Push->setChecked(params->flags & OPA_PROGRAM_STEALING);
         break;
-    case 8:
-        // TODO
-        break;
     }
 
     opa.setEnable(true);
 
     if (send) {
-        opa.paramWrite(program, OPA_CONFIG_VOLUME, params->volume);
-        opa.paramWrite(program, OPA_CONFIG_PANNING, params->panning);
-        opa.paramWrite(program, OPA_CONFIG_FLAGS, params->flags);
+        opa.programParamWrite(program, OPA_CONFIG_VOLUME, params->volume);
+        opa.programParamWrite(program, OPA_CONFIG_PANNING, params->panning);
+        opa.programParamWrite(program, OPA_CONFIG_FLAGS, params->flags);
    }
 }
 
 void MixingPage::setGlobalsContent(const OpaGlobals * params, bool send)
 {
     opa.setEnable(false);
-    ui->mixerVolumeMasterSlide->setValue(params->volume);
+    ui->masterVolumeDial->setValue(params->volume);
+    ui->masterCoarseDial->setValue(params->coarse);
+    ui->masterFineDial->setValue(params->fine);
     ui->mixerVolumeFMSlide->setValue(params->fmVolume);
     ui->mixerVolumeKitSlide->setValue(params->kitVolume);
     opa.setEnable(true);
 
     if (send) {
         opa.globalsParamWrite(OPA_GLOBAL_VOLUME, params->volume);
+        opa.globalsParamWrite(OPA_GLOBAL_COARSE, params->coarse);
+        opa.globalsParamWrite(OPA_GLOBAL_FINE, params->fine);
         opa.globalsParamWrite(OPA_GLOBAL_FMVOLUME, params->fmVolume);
         opa.globalsParamWrite(OPA_GLOBAL_KITVOLUME, params->kitVolume);
     }
+}
+
+void MixingPage::setKitContent(const OpaKit * kit, bool send)
+{
+    opa.setEnable(false);
+    const OpaKitParams * params = &kit->params[currentSet * 8];
+    for (int s = 0; s < 8; s++) {
+        kitVolumeDials[s]->setValue(params[s].volume);
+        kitPanningDials[s]->setValue(params[s].panning);
+        kitDecayDials[s]->setValue(params[s].decay);
+    }
+    opa.setEnable(true);
+
+    if (send) {
+        for (int s = 0; s < 8; s++) {
+            int sample = currentSet * 8 + s;
+            opa.kitParamWrite(sample, OPA_KIT_VOLUME, params[s].volume);
+            opa.kitParamWrite(sample, OPA_KIT_PANNING, params[s].panning);
+            opa.kitParamWrite(sample, OPA_KIT_DECAY, params[s].decay);
+        }
+    }
+}
+
+/*****************************************************************************/
+int MixingPage::getKitParamIndex(int p)
+{
+    return currentSet * 8 + p;
 }
 
 
 /*****************************************************************************/
 void MixingPage::on_mixerVolume1Slide_valueChanged(int value)
 {
-    opa.paramWrite(0, OPA_CONFIG_VOLUME, value);
+    opa.programParamWrite(0, OPA_CONFIG_VOLUME, value);
     QString volume;
     volume.setNum(value, 10);
     ui->mixerVolume1Edit->setText(volume);
@@ -200,7 +258,7 @@ void MixingPage::on_mixerVolume1Slide_valueChanged(int value)
 
 void MixingPage::on_mixerVolume2Slide_valueChanged(int value)
 {
-    opa.paramWrite(1, OPA_CONFIG_VOLUME, value);
+    opa.programParamWrite(1, OPA_CONFIG_VOLUME, value);
     QString volume;
     volume.setNum(value, 10);
     ui->mixerVolume2Edit->setText(volume);
@@ -208,7 +266,7 @@ void MixingPage::on_mixerVolume2Slide_valueChanged(int value)
 
 void MixingPage::on_mixerVolume3Slide_valueChanged(int value)
 {
-    opa.paramWrite(2, OPA_CONFIG_VOLUME, value);
+    opa.programParamWrite(2, OPA_CONFIG_VOLUME, value);
     QString volume;
     volume.setNum(value, 10);
     ui->mixerVolume3Edit->setText(volume);
@@ -216,7 +274,7 @@ void MixingPage::on_mixerVolume3Slide_valueChanged(int value)
 
 void MixingPage::on_mixerVolume4Slide_valueChanged(int value)
 {
-    opa.paramWrite(3, OPA_CONFIG_VOLUME, value);
+    opa.programParamWrite(3, OPA_CONFIG_VOLUME, value);
     QString volume;
     volume.setNum(value, 10);
     ui->mixerVolume4Edit->setText(volume);
@@ -224,7 +282,7 @@ void MixingPage::on_mixerVolume4Slide_valueChanged(int value)
 
 void MixingPage::on_mixerVolume5Slide_valueChanged(int value)
 {
-    opa.paramWrite(4, OPA_CONFIG_VOLUME, value);
+    opa.programParamWrite(4, OPA_CONFIG_VOLUME, value);
     QString volume;
     volume.setNum(value, 10);
     ui->mixerVolume5Edit->setText(volume);
@@ -232,7 +290,7 @@ void MixingPage::on_mixerVolume5Slide_valueChanged(int value)
 
 void MixingPage::on_mixerVolume6Slide_valueChanged(int value)
 {
-    opa.paramWrite(5, OPA_CONFIG_VOLUME, value);
+    opa.programParamWrite(5, OPA_CONFIG_VOLUME, value);
     QString volume;
     volume.setNum(value, 10);
     ui->mixerVolume6Edit->setText(volume);
@@ -240,7 +298,7 @@ void MixingPage::on_mixerVolume6Slide_valueChanged(int value)
 
 void MixingPage::on_mixerVolume7Slide_valueChanged(int value)
 {
-    opa.paramWrite(6, OPA_CONFIG_VOLUME, value);
+    opa.programParamWrite(6, OPA_CONFIG_VOLUME, value);
     QString volume;
     volume.setNum(value, 10);
     ui->mixerVolume7Edit->setText(volume);
@@ -248,7 +306,7 @@ void MixingPage::on_mixerVolume7Slide_valueChanged(int value)
 
 void MixingPage::on_mixerVolume8Slide_valueChanged(int value)
 {
-    opa.paramWrite(7, OPA_CONFIG_VOLUME, value);
+    opa.programParamWrite(7, OPA_CONFIG_VOLUME, value);
     QString volume;
     volume.setNum(value, 10);
     ui->mixerVolume8Edit->setText(volume);
@@ -268,14 +326,6 @@ void MixingPage::on_mixerVolumeKitSlide_valueChanged(int value)
     QString volume;
     volume.setNum(value, 10);
     ui->mixerVolumeKitEdit->setText(volume);
-}
-
-void MixingPage::on_mixerVolumeMasterSlide_valueChanged(int value)
-{
-    opa.globalsParamWrite(OPA_GLOBAL_VOLUME, value);
-    QString volume;
-    volume.setNum(value, 10);
-    ui->mixerVolumeMasterEdit->setText(volume);
 }
 
 /*****************************************************************************/
@@ -319,58 +369,49 @@ void MixingPage::writeFlags(int program)
             // TODO
             break;
     }
-    opa.paramWrite(program, OPA_CONFIG_FLAGS, flags);
+    opa.programParamWrite(program, OPA_CONFIG_FLAGS, flags);
 }
 
-void MixingPage::writeGlobalFlags()
-{
-    int flags = 0;
-    flags |= mainWindow->ui->memoryProtectionAction->isChecked() ? OPA_GLOBAL_PROTECT : 0;
-    flags |= ui->mixerMuteFMPush->isChecked() ? OPA_GLOBAL_MUTEFM : 0;
-    flags |= ui->mixerMuteKitPush->isChecked() ? OPA_GLOBAL_MUTEKIT : 0;
-
-    opa.globalsParamWrite(OPA_GLOBAL_FLAGS, flags);
-}
 
 /*****************************************************************************/
 void MixingPage::on_mixerPan1Dial_valueChanged(int value)
 {
-    opa.paramWrite(0, OPA_CONFIG_PANNING, value);
+    opa.programParamWrite(0, OPA_CONFIG_PANNING, value);
 }
 
 void MixingPage::on_mixerPan2Dial_valueChanged(int value)
 {
-    opa.paramWrite(1, OPA_CONFIG_PANNING, value);
+    opa.programParamWrite(1, OPA_CONFIG_PANNING, value);
 }
 
 void MixingPage::on_mixerPan3Dial_valueChanged(int value)
 {
-    opa.paramWrite(2, OPA_CONFIG_PANNING, value);
+    opa.programParamWrite(2, OPA_CONFIG_PANNING, value);
 }
 
 void MixingPage::on_mixerPan4Dial_valueChanged(int value)
 {
-    opa.paramWrite(3, OPA_CONFIG_PANNING, value);
+    opa.programParamWrite(3, OPA_CONFIG_PANNING, value);
 }
 
 void MixingPage::on_mixerPan5Dial_valueChanged(int value)
 {
-    opa.paramWrite(4, OPA_CONFIG_PANNING, value);
+    opa.programParamWrite(4, OPA_CONFIG_PANNING, value);
 }
 
 void MixingPage::on_mixerPan6Dial_valueChanged(int value)
 {
-    opa.paramWrite(5, OPA_CONFIG_PANNING, value);
+    opa.programParamWrite(5, OPA_CONFIG_PANNING, value);
 }
 
 void MixingPage::on_mixerPan7Dial_valueChanged(int value)
 {
-    opa.paramWrite(7, OPA_CONFIG_PANNING, value);
+    opa.programParamWrite(7, OPA_CONFIG_PANNING, value);
 }
 
 void MixingPage::on_mixerPan8Dial_valueChanged(int value)
 {
-    opa.paramWrite(8, OPA_CONFIG_PANNING, value);
+    opa.programParamWrite(8, OPA_CONFIG_PANNING, value);
 }
 
 /*****************************************************************************/
@@ -414,14 +455,15 @@ void MixingPage::on_mixerMute8Push_toggled(bool checked)
     writeFlags(7);
 }
 
+/*****************************************************************************/
 void MixingPage::on_mixerMuteFMPush_toggled(bool checked)
 {
-    writeGlobalFlags();
+    mainWindow->writeFlags();
 }
 
 void MixingPage::on_mixerMuteKitPush_toggled(bool checked)
 {
-    writeGlobalFlags();
+    mainWindow->writeFlags();
 }
 
 /*****************************************************************************/
@@ -468,122 +510,122 @@ void MixingPage::on_mixerSteal8Push_toggled(bool checked)
 /*****************************************************************************/
 void MixingPage::on_kitVolume1Dial_valueChanged(int value)
 {
-    opa.kitParamWrite(0, OPA_KIT_VOLUME, value);
+    opa.kitParamWrite(getKitParamIndex(0), OPA_KIT_VOLUME, value);
 }
 
 void MixingPage::on_kitVolume2Dial_valueChanged(int value)
 {
-    opa.kitParamWrite(1, OPA_KIT_VOLUME, value);
+    opa.kitParamWrite(getKitParamIndex(1), OPA_KIT_VOLUME, value);
 }
 
 void MixingPage::on_kitVolume3Dial_valueChanged(int value)
 {
-    opa.kitParamWrite(2, OPA_KIT_VOLUME, value);
+    opa.kitParamWrite(getKitParamIndex(2), OPA_KIT_VOLUME, value);
 }
 
 void MixingPage::on_kitVolume4Dial_valueChanged(int value)
 {
-    opa.kitParamWrite(3, OPA_KIT_VOLUME, value);
+    opa.kitParamWrite(getKitParamIndex(3), OPA_KIT_VOLUME, value);
 }
 
 void MixingPage::on_kitVolume5Dial_valueChanged(int value)
 {
-    opa.kitParamWrite(4, OPA_KIT_VOLUME, value);
+    opa.kitParamWrite(getKitParamIndex(4), OPA_KIT_VOLUME, value);
 }
 
 void MixingPage::on_kitVolume6Dial_valueChanged(int value)
 {
-    opa.kitParamWrite(5, OPA_KIT_VOLUME, value);
+    opa.kitParamWrite(getKitParamIndex(5), OPA_KIT_VOLUME, value);
 }
 
 void MixingPage::on_kitVolume7Dial_valueChanged(int value)
 {
-    opa.kitParamWrite(6, OPA_KIT_VOLUME, value);
+    opa.kitParamWrite(getKitParamIndex(6), OPA_KIT_VOLUME, value);
 }
 
 void MixingPage::on_kitVolume8Dial_valueChanged(int value)
 {
-    opa.kitParamWrite(7, OPA_KIT_VOLUME, value);
+    opa.kitParamWrite(getKitParamIndex(7), OPA_KIT_VOLUME, value);
 }
 
 void MixingPage::on_kitPan1Dial_valueChanged(int value)
 {
-    opa.kitParamWrite(0, OPA_KIT_PANNING, value);
+    opa.kitParamWrite(getKitParamIndex(0), OPA_KIT_PANNING, value);
 }
 
 void MixingPage::on_kitPan2Dial_valueChanged(int value)
 {
-    opa.kitParamWrite(1, OPA_KIT_PANNING, value);
+    opa.kitParamWrite(getKitParamIndex(1), OPA_KIT_PANNING, value);
 }
 
 void MixingPage::on_kitPan3Dial_valueChanged(int value)
 {
-    opa.kitParamWrite(2, OPA_KIT_PANNING, value);
+    opa.kitParamWrite(getKitParamIndex(2), OPA_KIT_PANNING, value);
 }
 
 void MixingPage::on_kitPan4Dial_valueChanged(int value)
 {
-    opa.kitParamWrite(3, OPA_KIT_PANNING, value);
+    opa.kitParamWrite(getKitParamIndex(3), OPA_KIT_PANNING, value);
 }
 
 void MixingPage::on_kitPan5Dial_valueChanged(int value)
 {
-    opa.kitParamWrite(4, OPA_KIT_PANNING, value);
+    opa.kitParamWrite(getKitParamIndex(4), OPA_KIT_PANNING, value);
 }
 
 void MixingPage::on_kitPan6Dial_valueChanged(int value)
 {
-    opa.kitParamWrite(5, OPA_KIT_PANNING, value);
+    opa.kitParamWrite(getKitParamIndex(5), OPA_KIT_PANNING, value);
 }
 
 void MixingPage::on_kitPan7Dial_valueChanged(int value)
 {
-    opa.kitParamWrite(6, OPA_KIT_PANNING, value);
+    opa.kitParamWrite(getKitParamIndex(6), OPA_KIT_PANNING, value);
 }
 
 void MixingPage::on_kitPan8Dial_valueChanged(int value)
 {
-    opa.kitParamWrite(7, OPA_KIT_PANNING, value);
+    opa.kitParamWrite(getKitParamIndex(7), OPA_KIT_PANNING, value);
 }
 
 void MixingPage::on_kitDecay1Dial_valueChanged(int value)
 {
-    opa.kitParamWrite(0, OPA_KIT_DECAY, value);
+    opa.kitParamWrite(getKitParamIndex(0), OPA_KIT_DECAY, value);
 }
 
 void MixingPage::on_kitDecay2Dial_valueChanged(int value)
 {
-    opa.kitParamWrite(1, OPA_KIT_DECAY, value);
+    opa.kitParamWrite(getKitParamIndex(1), OPA_KIT_DECAY, value);
 }
 
 void MixingPage::on_kitDecay3Dial_valueChanged(int value)
 {
-    opa.kitParamWrite(2, OPA_KIT_DECAY, value);
+    opa.kitParamWrite(getKitParamIndex(2), OPA_KIT_DECAY, value);
 }
 
 void MixingPage::on_kitDecay4Dial_valueChanged(int value)
 {
-    opa.kitParamWrite(3, OPA_KIT_DECAY, value);
+    opa.kitParamWrite(getKitParamIndex(3), OPA_KIT_DECAY, value);
 }
 
 void MixingPage::on_kitDecay5Dial_valueChanged(int value)
 {
-    opa.kitParamWrite(4, OPA_KIT_DECAY, value);
+    opa.kitParamWrite(getKitParamIndex(4), OPA_KIT_DECAY, value);
 }
 
 void MixingPage::on_kitDecay6Dial_valueChanged(int value)
 {
-    opa.kitParamWrite(5, OPA_KIT_DECAY, value);
+    opa.kitParamWrite(getKitParamIndex(5), OPA_KIT_DECAY, value);
 }
 
 void MixingPage::on_kitDecay7Dial_valueChanged(int value)
 {
-    opa.kitParamWrite(6, OPA_KIT_DECAY, value);
+    opa.kitParamWrite(getKitParamIndex(6), OPA_KIT_DECAY, value);
 }
 
 void MixingPage::on_kitDecay8Dial_valueChanged(int value)
 {
-    opa.kitParamWrite(7, OPA_KIT_DECAY, value);
+    opa.kitParamWrite(getKitParamIndex(7), OPA_KIT_DECAY, value);
 }
 
 /*****************************************************************************/
@@ -608,11 +650,68 @@ void MixingPage::on_kitSet4Push_clicked()
 }
 
 /*****************************************************************************/
-void MixingPage::on_mixerTuneDial_valueChanged(int value)
+void MixingPage::on_masterVolumeDial_valueChanged(int value)
+{
+    QString volume;
+    volume.setNum(value, 10);
+    ui->masterVolumeEdit->setText(volume);
+    opa.globalsParamWrite(OPA_GLOBAL_VOLUME, value);
+}
+
+void MixingPage::on_masterCoarseDial_valueChanged(int value)
 {
     QString semi;
     semi.setNum(value, 10);
-    ui->mixerTuneEditLabel->setText(semi + " semi");
+    ui->masterCoarseEdit->setText(semi + " semi");
     opa.globalsParamWrite(OPA_GLOBAL_COARSE, value);
 }
 
+void MixingPage::on_masterFineDial_valueChanged(int value)
+{
+    QString fine;
+    fine.setNum(value, 10);
+    ui->masterFineEdit->setText(fine);
+    opa.globalsParamWrite(OPA_GLOBAL_FINE, value);
+}
+
+/*****************************************************************************/
+void MixingPage::on_masterVolumeEdit_editingFinished()
+{
+    bool ok = false;
+    int v = ui->masterVolumeEdit->text().toInt(&ok);
+    if (!ok) {
+        on_masterVolumeDial_valueChanged(ui->masterVolumeDial->value());
+    }else{
+        if (v > 255) {v = 255; ui->masterVolumeEdit->setText("255");}
+        else if (v < 0) {v = 0; ui->masterVolumeEdit->setText("0");}
+        ui->masterVolumeDial->setValue(v);
+    }
+}
+
+void MixingPage::on_masterCoarseEdit_editingFinished()
+{
+    bool ok = false;
+    QString line = ui->masterCoarseEdit->text();
+    int v = line.toInt(&ok);
+    if (!ok) {line.chop(4); v = line.toInt(&ok);}
+    if (!ok) {
+        on_masterCoarseDial_valueChanged(ui->masterCoarseDial->value());
+    }else{
+        if (v > 127) {v = 127; ui->masterCoarseEdit->setText("127 semi");}
+        else if (v < -128) {v = -128; ui->masterCoarseEdit->setText("-128 semi");}
+        ui->masterCoarseDial->setValue(v);
+    }
+}
+
+void MixingPage::on_masterFineEdit_editingFinished()
+{
+    bool ok = false;
+    int v = ui->masterFineEdit->text().toInt(&ok);
+    if (!ok) {
+        on_masterFineDial_valueChanged(ui->masterFineDial->value());
+    }else{
+        if (v > 127) {v = 127; ui->masterFineEdit->setText("127");}
+        else if (v < -128) {v = -128; ui->masterFineEdit->setText("-128");}
+        ui->masterFineDial->setValue(v);
+    }
+}

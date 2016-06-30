@@ -293,12 +293,12 @@ int comRead(int index, char * buffer, size_t len)
 /*****************************************************************************/
 const char * findPattern(const char * string, const char * pattern, int * value)
 {
-    char c, n = 0;
+    char n = 0;
     const char * sp = string;
     const char * pp = pattern;
 // Check for the string pattern
     while (1) {
-        c = *sp ++;
+        char c = *sp ++;
         if (c == '\0') {
             if (*pp == '?') break;
             if (*sp == '\0') break;

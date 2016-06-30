@@ -2,6 +2,7 @@
 #define MIXINGPAGE_H
 
 #include <QWidget>
+#include <QDial>
 
 #include "led.h"
 #include "opa.h"
@@ -21,12 +22,15 @@ public:
     void setSampleSet(int set);
     void setContent(int program, const OpaProgramParams * params, bool send);
     void setGlobalsContent(const OpaGlobals * params, bool send);
+    void setKitContent(const OpaKit * kit, bool send);
 
     void writeFlags(int program);
-    void writeGlobalFlags();
 
     void refreshMixingLeds();
     void refreshSampleLeds();
+
+private:
+    int getKitParamIndex(int p);
 
 private slots:
     void on_mixerVolume1Slide_valueChanged(int value);
@@ -39,7 +43,6 @@ private slots:
     void on_mixerVolume8Slide_valueChanged(int value);
     void on_mixerVolumeFMSlide_valueChanged(int value);
     void on_mixerVolumeKitSlide_valueChanged(int value);
-    void on_mixerVolumeMasterSlide_valueChanged(int value);
 
     void on_mixerPan1Dial_valueChanged(int value);
     void on_mixerPan2Dial_valueChanged(int value);
@@ -102,12 +105,26 @@ private slots:
     void on_kitSet3Push_clicked();
     void on_kitSet4Push_clicked();
 
-    void on_mixerTuneDial_valueChanged(int value);
+    void on_masterVolumeDial_valueChanged(int value);
+    void on_masterCoarseDial_valueChanged(int value);
+    void on_masterFineDial_valueChanged(int value);
+
+    void on_masterVolumeEdit_editingFinished();
+
+    void on_masterCoarseEdit_editingFinished();
+
+    void on_masterFineEdit_editingFinished();
 
 private:
+    QDial * kitVolumeDials[8];
+    QDial * kitPanningDials[8];
+    QDial * kitDecayDials[8];
+
     int currentSet;
     Led * mixingLeds[10];
     Led * kitLeds[8];
+
+public:
     Ui::MixingPage *ui;
 };
 

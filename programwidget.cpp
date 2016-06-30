@@ -31,6 +31,7 @@
 
 #include "programwidget.h"
 #include "ui_programwidget.h"
+#include "ui_mainwindow.h"
 
 #include <QMessageBox>
 #include <QFileDialog>
@@ -72,6 +73,7 @@ void ProgramWidget::setContent(const OpaProgramParams * params, bool send)
     opa.setEnable(false);
 
     setFlags(params->flags);
+
     QString name;
     programNameToQS(params->name, name);
     ui->nameLine->setText(name);
@@ -82,11 +84,11 @@ void ProgramWidget::setContent(const OpaProgramParams * params, bool send)
     opa.setEnable(true);
 
     if (send) {
-        opa.paramWrite(programIndex, OPA_CONFIG_ALGO, params->algorithm);
-        opa.paramWrite(programIndex, OPA_CONFIG_VOLUME, params->volume);
-        opa.paramWrite(programIndex, OPA_CONFIG_PANNING, params->panning);
+        opa.programParamWrite(programIndex, OPA_CONFIG_ALGO, params->algorithm);
+        opa.programParamWrite(programIndex, OPA_CONFIG_VOLUME, params->volume);
+        opa.programParamWrite(programIndex, OPA_CONFIG_PANNING, params->panning);
         for(int i = 0; i < OPA_PROGS_NAME_LEN; i++)
-            opa.paramWrite(programIndex, OPA_CONFIG_NAME + i, params->name[i]);
+            opa.programParamWrite(programIndex, OPA_CONFIG_NAME + i, params->name[i]);
         writeFlags();
    }
 }
@@ -109,12 +111,12 @@ void ProgramWidget::setProgramIndex(int index)
 /*****************************************************************************/
 void ProgramWidget::on_volumeDial_valueChanged(int value)
 {
-    opa.paramWrite(programIndex, OPA_CONFIG_VOLUME, value);
+    opa.programParamWrite(programIndex, OPA_CONFIG_VOLUME, value);
 }
 
 void ProgramWidget::on_panningDial_valueChanged(int value)
 {
-    opa.paramWrite(programIndex, OPA_CONFIG_PANNING, value);
+    opa.programParamWrite(programIndex, OPA_CONFIG_PANNING, value);
 }
 
 /*****************************************************************************/
@@ -182,7 +184,7 @@ void ProgramWidget::on_loadButton_clicked()
 void ProgramWidget::on_storeButton_clicked()
 {
 // Check memory protection
-    if (mainWindow->getMemoryProtection()) {
+    if (mainWindow->ui->memoryProtectionAction->isChecked()) {
         QMessageBox mb(QMessageBox::Information, "OPA Editor", "Internal memory is protected!\n\nMemory protection can be disabled using the device menu.", QMessageBox::Ok, this);
         mb.exec();
         return;
@@ -204,7 +206,7 @@ void ProgramWidget::on_nameLine_editingFinished()
     uint8_t name[OPA_PROGS_NAME_LEN];
     programNameFromQS(ui->nameLine->text(), name);
     for (int i = 0; i < OPA_PROGS_NAME_LEN; i++)
-        opa.paramWrite(programIndex, OPA_CONFIG_NAME + i, name[i]);
+        opa.programParamWrite(programIndex, OPA_CONFIG_NAME + i, name[i]);
 }
 
 /*****************************************************************************/
@@ -212,19 +214,22 @@ void ProgramWidget::writeFlags()
 {
     int flags = 0;
     flags |= ui->stealingButton->isChecked() ? OPA_PROGRAM_STEALING : 0;
-    opa.paramWrite(programIndex, OPA_CONFIG_FLAGS, flags);
+    flags |= ui->muteButton->isChecked() ? OPA_PROGRAM_MUTED : 0;
+    opa.programParamWrite(programIndex, OPA_CONFIG_FLAGS, flags);
 }
 
 int ProgramWidget::getFlags()
 {
     int flags = 0;
     flags |= ui->stealingButton->isChecked() ? OPA_PROGRAM_STEALING : 0;
+    flags |= ui->muteButton->isChecked() ? OPA_PROGRAM_MUTED : 0;
     return flags;
 }
 
 void ProgramWidget::setFlags(int flags)
 {
     ui->stealingButton->setChecked(flags & OPA_PROGRAM_STEALING);
+    ui->muteButton->setChecked(flags & OPA_PROGRAM_MUTED);
 }
 
 /*****************************************************************************/
@@ -235,6 +240,11 @@ void ProgramWidget::on_slotSpin_valueChanged(int value)
 }
 
 void ProgramWidget::on_stealingButton_clicked()
+{
+    writeFlags();
+}
+
+void ProgramWidget::on_muteButton_clicked()
 {
     writeFlags();
 }

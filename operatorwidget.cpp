@@ -59,7 +59,7 @@ void OperatorWidget::setContent(const OpaOperatorParams * params, bool send)
     ui->volumeSlide->setValue(params->volume);
     on_volumeSlide_valueChanged(params->volume);
 
-    int coarse = params->flags & OPA_OP_ABSOLUTE ?
+    int coarse = (params->flags & OPA_OP_ABSOLUTE) ?
         ((int8_t) params->coarse) + 128 : params->coarse;
 
     ui->coarseDial->setValue(coarse);
@@ -83,17 +83,17 @@ void OperatorWidget::setContent(const OpaOperatorParams * params, bool send)
     opa.setEnable(true);
 
     if (send) {
-        opa.paramWrite(programIndex, getParamIndex(OPA_OP_VOLUME), params->volume);
-        opa.paramWrite(programIndex, getParamIndex(OPA_OP_COARSE), params->coarse);
-        opa.paramWrite(programIndex, getParamIndex(OPA_OP_FINE), params->fine);
-        opa.paramWrite(programIndex, getParamIndex(OPA_OP_LFOSPEED), params->LFOSpeed);
-        opa.paramWrite(programIndex, getParamIndex(OPA_OP_LFOAMOUNT), params->LFOAmount);
-        opa.paramWrite(programIndex, getParamIndex(OPA_OP_FEEDBACK), params->feedback);
-        opa.paramWrite(programIndex, getParamIndex(OPA_OP_ENVATTACK), params->envAttack);
-        opa.paramWrite(programIndex, getParamIndex(OPA_OP_ENVDECAY), params->envDecay);
-        opa.paramWrite(programIndex, getParamIndex(OPA_OP_ENVSUSTAIN_LEVEL), params->envSusLevel);
-        opa.paramWrite(programIndex, getParamIndex(OPA_OP_ENVINIT_LEVEL), params->envIniLevel);
-        opa.paramWrite(programIndex, getParamIndex(OPA_OP_ENVRELEASE), params->envRelease);
+        opa.programParamWrite(programIndex, getParamIndex(OPA_OP_VOLUME), params->volume);
+        opa.programParamWrite(programIndex, getParamIndex(OPA_OP_COARSE), params->coarse);
+        opa.programParamWrite(programIndex, getParamIndex(OPA_OP_FINE), params->fine);
+        opa.programParamWrite(programIndex, getParamIndex(OPA_OP_LFOSPEED), params->LFOSpeed);
+        opa.programParamWrite(programIndex, getParamIndex(OPA_OP_LFOAMOUNT), params->LFOAmount);
+        opa.programParamWrite(programIndex, getParamIndex(OPA_OP_FEEDBACK), params->feedback);
+        opa.programParamWrite(programIndex, getParamIndex(OPA_OP_ENVATTACK), params->envAttack);
+        opa.programParamWrite(programIndex, getParamIndex(OPA_OP_ENVDECAY), params->envDecay);
+        opa.programParamWrite(programIndex, getParamIndex(OPA_OP_ENVSUSTAIN_LEVEL), params->envSusLevel);
+        opa.programParamWrite(programIndex, getParamIndex(OPA_OP_ENVINIT_LEVEL), params->envIniLevel);
+        opa.programParamWrite(programIndex, getParamIndex(OPA_OP_ENVRELEASE), params->envRelease);
         writeFlags();
    }
 }
@@ -130,7 +130,7 @@ void OperatorWidget::updateSingle(int param, int value)
 
     case OPA_OP_COARSE:
         {
-        int coarse = flags & OPA_OP_ABSOLUTE ?
+        int coarse = (flags & OPA_OP_ABSOLUTE) ?
             ((int8_t) value) + 128 : value;
         ui->coarseDial->setValue(coarse);
         }
@@ -213,14 +213,14 @@ void OperatorWidget::on_coarseDial_valueChanged(int value)
         semi.setNum(value - 128, 10);
         text = semi + " semi";
         ui->coarseLine->setText(text);
-        opa.paramWrite(programIndex, getParamIndex(OPA_OP_COARSE), value - 128);
+        opa.programParamWrite(programIndex, getParamIndex(OPA_OP_COARSE), value - 128);
     }else{
         QString mul;
         float v = opaRatios[value >> 3];
         mul.setNum(v, 'f', 2);
         text = "x" + mul;
         ui->coarseLine->setText(text);
-        opa.paramWrite(programIndex, getParamIndex(OPA_OP_COARSE), value);
+        opa.programParamWrite(programIndex, getParamIndex(OPA_OP_COARSE), value);
     }
 }
 
@@ -229,7 +229,7 @@ void OperatorWidget::on_fineDial_valueChanged(int value)
     QString fine;
     fine.setNum(value, 10);
     ui->fineLine->setText(fine);
-    opa.paramWrite(programIndex, getParamIndex(OPA_OP_FINE), value);
+    opa.programParamWrite(programIndex, getParamIndex(OPA_OP_FINE), value);
 }
 
 void OperatorWidget::on_absoluteButton_clicked(bool checked)
@@ -242,49 +242,49 @@ void OperatorWidget::on_absoluteButton_clicked(bool checked)
 /*****************************************************************************/
 void OperatorWidget::on_attackDial_valueChanged(int value)
 {
-    opa.paramWrite(programIndex, getParamIndex(OPA_OP_ENVATTACK), value);
+    opa.programParamWrite(programIndex, getParamIndex(OPA_OP_ENVATTACK), value);
     updateEnvelope();
 }
 
 void OperatorWidget::on_decayDial_valueChanged(int value)
 {
-    opa.paramWrite(programIndex, getParamIndex(OPA_OP_ENVDECAY), value);
+    opa.programParamWrite(programIndex, getParamIndex(OPA_OP_ENVDECAY), value);
     updateEnvelope();
 }
 
 void OperatorWidget::on_sustainDial_valueChanged(int value)
 {
-    opa.paramWrite(programIndex, getParamIndex(OPA_OP_ENVSUSTAIN_LEVEL), value);
+    opa.programParamWrite(programIndex, getParamIndex(OPA_OP_ENVSUSTAIN_LEVEL), value);
     updateEnvelope();
 }
 
 void OperatorWidget::on_initDial_valueChanged(int value)
 {
-    opa.paramWrite(programIndex, getParamIndex(OPA_OP_ENVINIT_LEVEL), value);
+    opa.programParamWrite(programIndex, getParamIndex(OPA_OP_ENVINIT_LEVEL), value);
     updateEnvelope();
 }
 
 void OperatorWidget::on_releaseDial_valueChanged(int value)
 {
-    opa.paramWrite(programIndex, getParamIndex(OPA_OP_ENVRELEASE), value);
+    opa.programParamWrite(programIndex, getParamIndex(OPA_OP_ENVRELEASE), value);
     updateEnvelope();
 }
 
 /*****************************************************************************/
 void OperatorWidget::on_LFOSpeedDial_valueChanged(int value)
 {
-    opa.paramWrite(programIndex, getParamIndex(OPA_OP_LFOSPEED), value);
+    opa.programParamWrite(programIndex, getParamIndex(OPA_OP_LFOSPEED), value);
 }
 
 void OperatorWidget::on_LFOAmountDial_valueChanged(int value)
 {
-    opa.paramWrite(programIndex, getParamIndex(OPA_OP_LFOAMOUNT), value);
+    opa.programParamWrite(programIndex, getParamIndex(OPA_OP_LFOAMOUNT), value);
 }
 
 /*****************************************************************************/
 void OperatorWidget::on_feedbackDial_valueChanged(int value)
 {
-    opa.paramWrite(programIndex, getParamIndex(OPA_OP_FEEDBACK), value);
+    opa.programParamWrite(programIndex, getParamIndex(OPA_OP_FEEDBACK), value);
 }
 
 /*****************************************************************************/
@@ -295,7 +295,7 @@ void OperatorWidget::on_muteButton_clicked(bool checked)
 
 void OperatorWidget::on_volumeSlide_valueChanged(int value)
 {
-    opa.paramWrite(programIndex, getParamIndex(OPA_OP_VOLUME), value);
+    opa.programParamWrite(programIndex, getParamIndex(OPA_OP_VOLUME), value);
     QString volume;
     volume.setNum(value, 10);
     ui->volumeLine->setText(volume);
@@ -326,7 +326,7 @@ void OperatorWidget::on_trackHardLowButton_clicked()
 void OperatorWidget::writeFlags()
 {
     int flags = getFlags();
-    opa.paramWrite(programIndex, getParamIndex(OPA_OP_FLAGS), flags);
+    opa.programParamWrite(programIndex, getParamIndex(OPA_OP_FLAGS), flags);
 }
 
 /*****************************************************************************/
@@ -386,7 +386,6 @@ void OperatorWidget::on_coarseLine_editingFinished()
         if (v > 255) {v = 255; ui->coarseLine->setText("127 semi");}
         else if (v < 0) {v = 0; ui->coarseLine->setText("-128 semi");}
         ui->coarseDial->setValue(v);
-
     }
 }
 

@@ -84,7 +84,6 @@ void ProgramsPage::refreshProgramLeds()
     }
 }
 
-
 /*****************************************************************************/
 void ProgramsPage::on_i1Push_clicked()
 {
@@ -129,79 +128,79 @@ void ProgramsPage::on_i8Push_clicked()
 /*****************************************************************************/
 void ProgramsPage::on_algo1Push_clicked()
 {
-    opa.paramWrite(currentProgram, OPA_CONFIG_ALGO, 1);
+    opa.programParamWrite(currentProgram, OPA_CONFIG_ALGO, 1);
     mainWindow->setAlgorithm(1);
 }
 
 void ProgramsPage::on_algo2Push_clicked()
 {
-    opa.paramWrite(currentProgram, OPA_CONFIG_ALGO, 2);
+    opa.programParamWrite(currentProgram, OPA_CONFIG_ALGO, 2);
     mainWindow->setAlgorithm(2);
 }
 
 void ProgramsPage::on_algo3Push_clicked()
 {
-    opa.paramWrite(currentProgram, OPA_CONFIG_ALGO, 3);
+    opa.programParamWrite(currentProgram, OPA_CONFIG_ALGO, 3);
     mainWindow->setAlgorithm(3);
 }
 
 void ProgramsPage::on_algo4Push_clicked()
 {
-    opa.paramWrite(currentProgram, OPA_CONFIG_ALGO, 4);
+    opa.programParamWrite(currentProgram, OPA_CONFIG_ALGO, 4);
     mainWindow->setAlgorithm(4);
 }
 
 void ProgramsPage::on_algo5Push_clicked()
 {
-    opa.paramWrite(currentProgram, OPA_CONFIG_ALGO, 5);
+    opa.programParamWrite(currentProgram, OPA_CONFIG_ALGO, 5);
     mainWindow->setAlgorithm(5);
 }
 
 void ProgramsPage::on_algo6Push_clicked()
 {
-    opa.paramWrite(currentProgram, OPA_CONFIG_ALGO, 6);
+    opa.programParamWrite(currentProgram, OPA_CONFIG_ALGO, 6);
     mainWindow->setAlgorithm(6);
 }
 
 void ProgramsPage::on_algo7Push_clicked()
 {
-    opa.paramWrite(currentProgram, OPA_CONFIG_ALGO, 7);
+    opa.programParamWrite(currentProgram, OPA_CONFIG_ALGO, 7);
     mainWindow->setAlgorithm(7);
 }
 
 void ProgramsPage::on_algo8Push_clicked()
 {
-    opa.paramWrite(currentProgram, OPA_CONFIG_ALGO, 8);
+    opa.programParamWrite(currentProgram, OPA_CONFIG_ALGO, 8);
     mainWindow->setAlgorithm(8);
 }
 
 void ProgramsPage::on_algo9Push_clicked()
 {
-    opa.paramWrite(currentProgram, OPA_CONFIG_ALGO, 9);
+    opa.programParamWrite(currentProgram, OPA_CONFIG_ALGO, 9);
     mainWindow->setAlgorithm(9);
 }
 
 void ProgramsPage::on_algo10Push_clicked()
 {
-    opa.paramWrite(currentProgram, OPA_CONFIG_ALGO, 10);
+    opa.programParamWrite(currentProgram, OPA_CONFIG_ALGO, 10);
     mainWindow->setAlgorithm(10);
 }
 
 void ProgramsPage::on_algo11Push_clicked()
 {
-    opa.paramWrite(currentProgram, OPA_CONFIG_ALGO, 11);
+    opa.programParamWrite(currentProgram, OPA_CONFIG_ALGO, 11);
     mainWindow->setAlgorithm(11);
 }
 
 void ProgramsPage::on_algo12Push_clicked()
 {
-    opa.paramWrite(currentProgram, OPA_CONFIG_ALGO, 12);
+    opa.programParamWrite(currentProgram, OPA_CONFIG_ALGO, 12);
     mainWindow->setAlgorithm(12);
 }
 
 void ProgramsPage::on_algo13Push_clicked()
 {
-    opa.paramWrite(currentProgram, OPA_CONFIG_ALGO, 13);
+    opa.programParamWrite(currentProgram, OPA_CONFIG_ALGO, 13);
     mainWindow->setAlgorithm(13);
 }
 

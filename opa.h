@@ -53,8 +53,8 @@ typedef enum{
     OPA_NOTEOFF                = 2,
     OPA_ALLNOTESOFF            = 3,
     OPA_ALLSOUNDSOFF           = 4,
-    OPA_PARAMWRITE             = 5,
-    OPA_PARAMREAD              = 6,
+    OPA_PROGRAMPARAMWRITE      = 5,
+    OPA_PROGRAMPARAMREAD       = 6,
     OPA_GLOBALSPARAMWRITE      = 7,
     OPA_GLOBALSPARAMREAD       = 8,
     OPA_PROGRAMWRITE           = 9,
@@ -68,6 +68,8 @@ typedef enum{
     OPA_PITCHBEND              = 17,
     OPA_KITPARAMWRITE          = 18,
     OPA_KITPARAMREAD           = 19,
+    OPA_KITWRITE               = 20,
+    OPA_KITREAD                = 21,
 }OPA_MESSAGES;
 
 typedef enum{
@@ -122,12 +124,13 @@ typedef enum{
 #define OPA_PROGS_NB                8
 
 #define OPA_GLOBAL_PARAMS_NB        8
+
 #define OPA_PROGS_PARAMS_NB         12
 #define OPA_PROGS_NAME_LEN          8
 #define OPA_PROGS_OP_PARAMS_NB      16
 #define OPA_PROGS_PARAMS_TOTAL      (OPA_PROGS_PARAMS_NB + OPA_PROGS_OP_PARAMS_NB * OPA_ALGOS_OP_NB)
 
-#define OPA_KIT_SAMPLES_NB          24
+#define OPA_KIT_SAMPLES_NB          32
 
 /*****************************************************************************/
 typedef enum{
@@ -173,10 +176,6 @@ typedef struct{
 }OpaKitParams;
 
 typedef struct{
-    uint8_t volume;
-    uint8_t flags;
-    uint8_t reserved1;
-    uint8_t reserved2;
     OpaKitParams params[OPA_KIT_SAMPLES_NB];
 }OpaKit;
 
@@ -232,8 +231,8 @@ public:
     void allNotesOff(int instrument);
     void allSoundsOff();
 
-    void paramWrite(int program, int param, int value);
-    void paramRead(int program, int param, int * value);
+    void programParamWrite(int program, int param, int value);
+    void programParamRead(int program, int param, int * value);
     void globalsParamWrite(int param, int value);
     void globalsParamRead(int param, int * value);
     void kitParamWrite(int sample, int param, int value);
@@ -243,6 +242,8 @@ public:
     void programRead(int program, OpaProgram * programData);
     void globalsWrite(const OpaGlobals * globalsData);
     void globalsRead(OpaGlobals * globalsData);
+    void kitWrite(const OpaKit * kitData);
+    void kitRead(OpaKit * kitData);
 
     void internalStore(int program, int slot);
     void internalLoad(int program, int slot);
@@ -251,7 +252,13 @@ public:
 
     void pitchBend(int program, int coarse, int fine);
 
-    bool isWaiting() {return NULL != globalsReturn || NULL != programReturn || NULL != kitReturn || NULL != paramReturn;}
+    bool isWaiting() {
+        return NULL != globalsReturn ||
+               NULL != programReturn ||
+               NULL != kitReturn ||
+               NULL != programParamReturn ||
+               NULL != kitParamReturn;
+    }
 
 public:
     static const OpaGlobals defaultGlobals;
@@ -262,21 +269,23 @@ public:
     static void initDefaultProgram();
 
 private:
-    void parseParameter();
+    void parseProgramParameter();
     void parseKitParameter();
     void parseProgram();
     void parseGlobals();
-    void fetchSerialData();
+    void parseKit();
 
-    int * paramReturn;
-    int paramReturnIndex;
+    int * programParamReturn;
+    int programParamReturnIndex;
 
-    int * kitReturn;
-    int kitReturnIndex;
+    int * kitParamReturn;
+    int kitParamReturnIndex;
 
+    volatile OpaKit * kitReturn;
     volatile OpaProgram * programReturn;
     volatile OpaGlobals * globalsReturn;
     volatile int programReturnIndex;
+    volatile int kitReturnIndex;
 
     char rxBuffer[OPA_RXBUFFER_LEN];
     unsigned int rxLen;
