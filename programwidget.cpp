@@ -171,6 +171,8 @@ void ProgramWidget::on_saveButton_clicked()
 /*****************************************************************************/
 void ProgramWidget::on_loadButton_clicked()
 {
+// Check the slot availability
+    if (!opa.isConnected()) return;
     int slot = ui->slotSpin->value() - 1;
     if (slot < 0) return;
 
@@ -184,6 +186,7 @@ void ProgramWidget::on_loadButton_clicked()
 void ProgramWidget::on_storeButton_clicked()
 {
 // Check memory protection
+    if (!opa.isConnected()) return;
     if (mainWindow->ui->memoryProtectionAction->isChecked()) {
         QMessageBox mb(QMessageBox::Information, "OPA Editor", "Internal memory is protected!\n\nMemory protection can be disabled using the device menu.", QMessageBox::Ok, this);
         mb.exec();

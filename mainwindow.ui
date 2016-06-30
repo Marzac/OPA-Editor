@@ -31,7 +31,7 @@
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>78</width>
+      <width>91</width>
       <height>24</height>
      </rect>
     </property>
@@ -45,9 +45,9 @@
    <widget class="QPushButton" name="mixingPagePush">
     <property name="geometry">
      <rect>
-      <x>100</x>
+      <x>110</x>
       <y>10</y>
-      <width>78</width>
+      <width>91</width>
       <height>24</height>
      </rect>
     </property>
