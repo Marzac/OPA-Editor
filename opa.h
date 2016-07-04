@@ -226,8 +226,8 @@ public:
 
     void update();
 
-    void noteOn(int instrument, int note, int fraction);
-    void noteOff(int instrument, int note, int fraction);
+    void noteOn(int instrument, int note, int fraction, int nuance);
+    void noteOff(int instrument, int note, int fraction, int nuance);
     void allNotesOff(int instrument);
     void allSoundsOff();
 

@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>OPA Soundchip Editor V1.0</string>
+   <string>OPA Soundchip Editor V1.10</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QPushButton" name="programsPagePush">
@@ -121,6 +121,7 @@
     <property name="title">
      <string>Editor</string>
     </property>
+    <addaction name="MIDIVelocityAction"/>
     <addaction name="CCMappingAction"/>
     <addaction name="ProgMappingAction"/>
    </widget>
@@ -194,7 +195,18 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>MIDI Program mapping</string>
+    <string>Program mapping</string>
+   </property>
+  </action>
+  <action name="MIDIVelocityAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>MIDI velocity</string>
    </property>
   </action>
  </widget>

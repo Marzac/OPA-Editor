@@ -259,8 +259,17 @@ void MainWindow::on_helpMenu_triggered(QAction * action)
             "<a href='http://www.loopmasters.com'>http://www.loopmasters.com</a><br><br>"
             "(c) Frederic Meslin / Thomas Hopper 2015-2016<br>"
             "<a href='http://fredslab.net'>http://fredslab.net</a><br><br>"
-            "Version 1.01 30/06/2016<br><br>"
-            "Software distributed under open-source MIT license, please refer to licence.txt for more details"
+            "Version 1.10 04/07/2016<br>"
+        #ifdef WIN32
+            "For Windows operating systems<br><br>"
+            "Software distributed under open-source MIT license, please refer to the licence.txt and readme.txt files located in the application directory for more details"
+        #elif defined(__APPLE__) && defined(__MACH__)
+            "For MAC OS operating systems<br><br>"
+            "Software distributed under open-source MIT license, please refer to the LICENSE and README files located in the application bundle for more details"
+        #else
+            "For Linux operating systems<br><br>"
+            "Software distributed under open-source MIT license, please refer to the LICENSE and README files located in the application directory for more details"
+        #endif
         );
         msgBox.setTextFormat(Qt::RichText);
         msgBox.setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
@@ -341,11 +350,18 @@ void MainWindow::midiInCallback(uint8_t msg[])
 {
     uint8_t s = msg[0] & 0xF0;
     uint8_t c = msg[0] & 0x0F;
+    uint8_t v = msg[2] << 1;
     midiChannelsAct[c] = true;
 
-    switch (s) {
+    bool progMapEnable = mainWindow->ui->ProgMappingAction->isChecked();
+    bool velocityEnable = mainWindow->ui->MIDIVelocityAction->isChecked();
+    bool CCMapEnable = mainWindow->ui->CCMappingAction->isChecked();
+
+    if (!velocityEnable) v = 255;
+
+    switch(s) {
         case 0x80:
-            if (c == MIDI_PROGMAP_CHANNEL && mainWindow->ui->ProgMappingAction->isChecked()) {
+            if (c == MIDI_PROGMAP_CHANNEL && progMapEnable) {
                 progMap(msg);
                 break;
             }
@@ -353,26 +369,25 @@ void MainWindow::midiInCallback(uint8_t msg[])
             if (c == MIDI_DRUMS_CHANNEL)
                 midiSamplesAct[msg[1]%32] = true;
 
-            opa.noteOff(c, msg[1], 0);
+            opa.noteOff(c, msg[1], 0, v);
             break;
 
         case 0x90:
-            if (c == MIDI_PROGMAP_CHANNEL && mainWindow->ui->ProgMappingAction->isChecked()) {
+            if (c == MIDI_PROGMAP_CHANNEL && progMapEnable) {
                 progMap(msg);
-                break;
+            }else{
+                if (c == MIDI_DRUMS_CHANNEL)
+                    midiSamplesAct[msg[1] % 32] = true;
+
+                if (msg[2]) opa.noteOn(c, msg[1], 0, v);
+                else opa.noteOff(c, msg[1], 0, v);
             }
-
-            if (c == MIDI_DRUMS_CHANNEL)
-                midiSamplesAct[msg[1]%32] = true;
-
-            if (msg[2]) opa.noteOn(c, msg[1], 0);
-            else opa.noteOff(c, msg[1], 0);
             break;
 
         case 0xB0:
             if (msg[1] == 0x78) opa.allSoundsOff();
             else if (msg[1] == 0x7B) opa.allNotesOff(c);
-            else if (mainWindow->ui->CCMappingAction->isChecked()) {
+            else if (CCMapEnable) {
                 if (msg[1] >= 10 && msg[1] < 54) {
                     int i = msg[1] - 10;
                     int o = i % 4;
@@ -398,8 +413,10 @@ void MainWindow::progMap(uint8_t msg[])
 {
     int c = msg[1] % OPA_PROGS_NB;
     int n = 36 + msg[1] / OPA_PROGS_NB;
-    if (msg[2]) opa.noteOn(c, n, 0);
-    else opa.noteOff(c, n, 0);
+    int v = msg[2] << 1;
+    if (!mainWindow->ui->MIDIVelocityAction->isChecked()) v = 255;
+    if (msg[2]) opa.noteOn(c, n, 0, v);
+    else opa.noteOff(c, n, 0, v);
 }
 
 /*****************************************************************************/

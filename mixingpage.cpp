@@ -86,15 +86,24 @@ MixingPage::~MixingPage()
 /*****************************************************************************/
 void MixingPage::refreshMixingLeds()
 {
+    bool fmActivity = false;
     for (int c = 0; c < 10; c++){
         if (!mixingLeds[c]) continue;
         if (midiChannelsAct[c]) {
+            if (c != 9) fmActivity = true;
             mixingLeds[c]->luminosity = 0xF000;
             mixingLeds[c]->repaint();
         }else if (mixingLeds[c]->luminosity >= 0x1000) {
             mixingLeds[c]->luminosity -= 0x1000;
             mixingLeds[c]->repaint();
         }
+    }
+    if (fmActivity){
+        ui->mixerFMLed->luminosity = 0xF000;
+        ui->mixerFMLed->repaint();
+    }else if (ui->mixerFMLed->luminosity >= 0x1000) {
+        ui->mixerFMLed->luminosity -= 0x1000;
+        ui->mixerFMLed->repaint();
     }
 }
 
