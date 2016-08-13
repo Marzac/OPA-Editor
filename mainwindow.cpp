@@ -56,6 +56,7 @@ MainWindow::MainWindow(QWidget *parent) :
     needGlobalsRefresh = false;
     needProgramRefresh = false;
     needKitRefresh = false;
+    needVersionRefresh = false;
     needAllRefresh = false;
 
     waitforGlobals = false;
@@ -110,8 +111,10 @@ void MainWindow::devicesEnumerate()
     QMenu * menu = ui->connectionMenu;
     menu->clear();
 
-// Enumerate COM devices
+// Disconnect OPA
     opa.disconnect();
+
+// Enumerate COM devices
     int portNb = comEnumerate();
     for (int i = 0; i < portNb; i++) {
         QString action("Arduino on: ");
@@ -227,6 +230,7 @@ void MainWindow::arduinoConnect(int port)
     needGlobalsRefresh = false;
     needProgramRefresh = false;
     needKitRefresh = false;
+    needVersionRefresh = false;
 
     waitforProgram = false;
     waitforKit = false;
@@ -251,26 +255,42 @@ void MainWindow::on_helpMenu_triggered(QAction * action)
 {
     if (action == ui->aboutAction) {
         QMessageBox msgBox;
-        msgBox.setText(
+        QString text =
             "OPA - Soundchip editor<br><br>"
-            "Software & hardware: Frederic Meslin<br>"
+            "Software & hardware: Fr&eacute;d&eacute;ric Meslin<br>"
             "Project design: Thomas Hopper<br>"
             "Drums & Percussions: Loopmasters<br>"
             "<a href='http://www.loopmasters.com'>http://www.loopmasters.com</a><br><br>"
-            "(c) Frederic Meslin / Thomas Hopper 2015-2016<br>"
+            "<u>With special thanks to:</u><br>"
+            "Val&egrave;re Alibert<br>"
+            "Fran&ccedil;ois Best<br>"
+            "Robert Bocquier<br>"
+            "Eric Inglebert<br>"
+            "Chris Duckers (midierror)<br><br>"
+            "<u>Testeurs:</u><br>"
+            "Niels Moseley<br>"
+            "Serge Jolipr&eacute;s<br>"
+            "Benoit Ruelle<br><br>"
+            "(c) Fr&eacute;d&eacute;ric Meslin / Thomas Hopper 2015-2016<br>"
             "<a href='http://fredslab.net'>http://fredslab.net</a><br><br>"
-            "Version 1.10 04/07/2016<br>"
+            "Version 1.11 13/08/2016<br>"
         #ifdef WIN32
             "For Windows operating systems<br><br>"
-            "Software distributed under open-source MIT license, please refer to the licence.txt and readme.txt files located in the application directory for more details"
+            "Software distributed under open-source MIT license, please refer to the licence.txt and readme.txt files located in the application directory for more details.<br><br>"
         #elif defined(__APPLE__) && defined(__MACH__)
             "For MAC OS operating systems<br><br>"
-            "Software distributed under open-source MIT license, please refer to the LICENSE and README files located in the application bundle for more details"
+            "Software distributed under open-source MIT license, please refer to the LICENSE and README files located in the application bundle for more details.<br><br>"
         #else
             "For Linux operating systems<br><br>"
-            "Software distributed under open-source MIT license, please refer to the LICENSE and README files located in the application directory for more details"
+            "Software distributed under open-source MIT license, please refer to the LICENSE and README files located in the application directory for more details.<br><br>"
         #endif
-        );
+            "OPA version: "
+        ;
+        if (opaVersion[0] == 0)
+            text += "not connected!";
+        else text += opaVersion;
+
+        msgBox.setText(text);
         msgBox.setTextFormat(Qt::RichText);
         msgBox.setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
         msgBox.setStandardButtons(QMessageBox::Ok);
@@ -307,6 +327,8 @@ void MainWindow::UITimer_timeout()
     // Update UI program
         ui->pageMixing->setKitContent(&kitBuffer, false);
         waitforKit = false;
+    }else if (waitforVersion && !opa.isWaiting()) {
+        waitforVersion = false;
     }else if (needGlobalsRefresh) {
         globalRead();
         needGlobalsRefresh = false;
@@ -316,13 +338,31 @@ void MainWindow::UITimer_timeout()
     }else if (needKitRefresh) {
         kitRead();
         needKitRefresh = false;
+    }else if (needVersionRefresh) {
+        versionRead();
+        needVersionRefresh = false;
     }else if (needAllRefresh) {
         if (allProgramCount == OPA_PROGS_NB){
             needAllRefresh = false;
             needGlobalsRefresh = true;
             needKitRefresh = true;
+            needVersionRefresh = true;
         }else{
             programRead(allProgramCount++);
+        }
+    }
+
+    if (opa.isConnected()) {
+        if (!ui->memoryProtectionAction->isEnabled()) {
+            ui->allNotesOffAction->setEnabled(true);
+            ui->allSoundsOffAction->setEnabled(true);
+            ui->memoryProtectionAction->setEnabled(true);
+        }
+    }else{
+        if (ui->memoryProtectionAction->isEnabled()) {
+            ui->allNotesOffAction->setEnabled(false);
+            ui->allSoundsOffAction->setEnabled(false);
+            ui->memoryProtectionAction->setEnabled(false);
         }
     }
 
@@ -435,6 +475,14 @@ void MainWindow::kitRead()
     memset(&kitBuffer, 0, sizeof(OpaKit));
     opa.kitRead(&kitBuffer);
     waitforKit = true;
+}
+
+void MainWindow::versionRead()
+{
+    if (opa.isWaiting()) return;
+    memset(&opaVersion, 0, 24);
+    opa.readVersion(opaVersion);
+    waitforVersion = true;
 }
 
 void MainWindow::globalRead()

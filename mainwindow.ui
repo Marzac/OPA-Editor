@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>OPA Soundchip Editor V1.10</string>
+   <string>OPA Soundchip Editor V1.11</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QPushButton" name="programsPagePush">
@@ -109,9 +109,6 @@
     <property name="title">
      <string>Device</string>
     </property>
-    <addaction name="loadProgramAction"/>
-    <addaction name="sendProgramAction"/>
-    <addaction name="separator"/>
     <addaction name="allNotesOffAction"/>
     <addaction name="allSoundsOffAction"/>
     <addaction name="separator"/>

@@ -162,6 +162,7 @@ Opa::Opa()
     programParamReturnIndex = 0;
     kitParamReturn = NULL;
     kitParamReturnIndex = 0;
+    versionReturn = NULL;
 
     memset(rxBuffer, 0, OPA_RXBUFFER_LEN);
     rxLen = 0;
@@ -200,6 +201,7 @@ void Opa::connect(int port)
     globalsReturn = NULL;
     programReturn = NULL;
     kitReturn = NULL;
+    versionReturn = NULL;
 
     programReturnIndex = 0;
     kitReturnIndex = 0;
@@ -248,6 +250,16 @@ void Opa::update()
         parseProgram();
     if (kitReturn && rxLen >= 3 + sizeof(OpaKit))
         parseKit();
+    if (versionReturn && rxLen >= 24) {
+        rxBuffer[rxLen-1] = 0;
+    #ifdef DEBUG
+        fprintf(stdout, "Receiving version %s\n", rxBuffer);
+        fflush(stdout);
+    #endif
+        memcpy(versionReturn, rxBuffer, 24);
+        versionReturn = NULL;
+        rxLen = 0;
+    }
     if (globalsReturn && rxLen >= 3 + sizeof(OpaGlobals))
         parseGlobals();
 
@@ -333,6 +345,24 @@ void Opa::parseGlobals()
 }
 
 /*****************************************************************************/
+void Opa::readVersion(char * version)
+{
+// Check for port
+    if (port < 0 || !enabled) return;
+#ifdef DEBUG
+    fprintf(stdout, "Reading version\n");
+    fflush(stdout);
+#endif
+// Store the pointer
+    if (isWaiting()) return;
+    versionReturn = version;
+// Prepare the message
+    char buffer[1];
+    buffer[0] = OPA_STATUS;
+// Send the message
+    comWrite(port, buffer, 1);
+}
+
 void Opa::noteOn(int instrument, int note, int fraction, int nuance)
 {
 // Check for port

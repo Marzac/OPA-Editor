@@ -58,6 +58,7 @@ public:
     void programRead(int program);
     void kitRead();
     void globalRead();
+    void versionRead();
 
     void refresh();
 
@@ -93,11 +94,14 @@ private:
     bool waitforProgram;
     bool waitforKit;
     bool waitforParam;
+    bool waitforVersion;
 
     int  programWaited;
 
     int  allProgramCount;
     int  connectDelay;
+
+    char opaVersion[24];
 
     MidiIn * midiIn;
     static void midiInCallback(uint8_t msg[]);
@@ -107,6 +111,8 @@ public:
     bool needGlobalsRefresh;
     bool needProgramRefresh;
     bool needKitRefresh;
+    bool needVersionRefresh;
+
     bool needAllRefresh;
     Ui::MainWindow *ui;
 };

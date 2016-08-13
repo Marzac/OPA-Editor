@@ -92,7 +92,6 @@ private slots:
     void on_fineLine_editingFinished();
     void on_volumeLine_editingFinished();
 
-
 private:
     int operatorIndex;
     int programIndex;

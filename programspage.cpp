@@ -125,6 +125,7 @@ void ProgramsPage::on_i8Push_clicked()
     mainWindow->setProgram(7);
 }
 
+
 /*****************************************************************************/
 void ProgramsPage::on_algo1Push_clicked()
 {

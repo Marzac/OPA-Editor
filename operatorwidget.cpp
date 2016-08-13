@@ -59,11 +59,8 @@ void OperatorWidget::setContent(const OpaOperatorParams * params, bool send)
     ui->volumeSlide->setValue(params->volume);
     on_volumeSlide_valueChanged(params->volume);
 
-    int coarse = (params->flags & OPA_OP_ABSOLUTE) ?
-        ((int8_t) params->coarse) + 128 : params->coarse;
-
-    ui->coarseDial->setValue(coarse);
-    on_coarseDial_valueChanged(coarse);
+    ui->coarseDial->setValue(params->coarse);
+    on_coarseDial_valueChanged(params->coarse);
 
     ui->fineDial->setValue(params->fine);
     on_fineDial_valueChanged(params->fine);
@@ -120,8 +117,6 @@ void OperatorWidget::getContent(OpaOperatorParams * params)
 /*****************************************************************************/
 void OperatorWidget::updateSingle(int param, int value)
 {
-    int flags = getFlags();
-
     switch(param) {
 
     case OPA_OP_VOLUME:
@@ -129,11 +124,7 @@ void OperatorWidget::updateSingle(int param, int value)
         break;
 
     case OPA_OP_COARSE:
-        {
-        int coarse = (flags & OPA_OP_ABSOLUTE) ?
-            ((int8_t) value) + 128 : value;
-        ui->coarseDial->setValue(coarse);
-        }
+        ui->coarseDial->setValue(value);
         break;
 
     case OPA_OP_FINE:
@@ -234,9 +225,9 @@ void OperatorWidget::on_fineDial_valueChanged(int value)
 
 void OperatorWidget::on_absoluteButton_clicked(bool checked)
 {
+    writeFlags();
     on_coarseDial_valueChanged(ui->coarseDial->value());
     ui->coarseLine->setReadOnly(!checked);
-    writeFlags();
 }
 
 /*****************************************************************************/
@@ -415,4 +406,5 @@ void OperatorWidget::on_volumeLine_editingFinished()
         ui->volumeSlide->setValue(v);
     }
 }
+
 

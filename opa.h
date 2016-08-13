@@ -226,6 +226,8 @@ public:
 
     void update();
 
+    void readVersion(char * version);
+
     void noteOn(int instrument, int note, int fraction, int nuance);
     void noteOff(int instrument, int note, int fraction, int nuance);
     void allNotesOff(int instrument);
@@ -257,7 +259,8 @@ public:
                NULL != programReturn ||
                NULL != kitReturn ||
                NULL != programParamReturn ||
-               NULL != kitParamReturn;
+               NULL != kitParamReturn ||
+               NULL != versionReturn;
     }
 
 public:
@@ -280,6 +283,8 @@ private:
 
     int * kitParamReturn;
     int kitParamReturnIndex;
+
+    char * versionReturn;
 
     volatile OpaKit * kitReturn;
     volatile OpaProgram * programReturn;

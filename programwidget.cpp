@@ -65,6 +65,14 @@ void ProgramWidget::updateUI()
         ui->nameLine->setText(name);
         waitforIntProgram = false;
     }
+
+    if (opa.isConnected()){
+        if (!ui->storeButton->isEnabled()) ui->storeButton->setEnabled(true);
+        if (!ui->loadButton->isEnabled()) ui->loadButton->setEnabled(true);
+    }else{
+        if (ui->storeButton->isEnabled()) ui->storeButton->setEnabled(false);
+        if (ui->loadButton->isEnabled()) ui->loadButton->setEnabled(false);
+    }
 }
 
 /*****************************************************************************/
