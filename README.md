@@ -31,12 +31,21 @@ Binaries for Windows and MacOS X can be found on http://www.fredslab.net/opa/
 
 ## Building on Linux
 
-The version of Qt 5 packaged by your distribution might not be complete to be able 
+On Debian/Ubuntu based distribution, you can build the editor this way:
+
+    sudo apt-get install build-essential git qt5-default qtbase5-dev
+    git clone https://github.com/Marzac/OPA-Editor.git
+    cd OPA-Editor
+    qmake .
+    make -j 4
+    ./OPAEditor 
+
+If it doesn't work, the version of Qt 5 packaged by your distribution might not be complete to be able 
 to build the OPA-Editor. In this case, download the official [Qt 5 linux installer](https://www.qt.io/download-open-source/), for example version 5.7, and install it in your home folder.
 Then from the OPA-Editor folder type:
 
     ~/Qt/5.7/gcc_64/bin/qmake
-    make
+    make -j 4
 
 Then run:
 
